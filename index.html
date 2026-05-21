@@ -1035,6 +1035,179 @@
       gap:6px;
     }
 
+    .concept-btn{
+      border-color:rgba(167,139,250,.34);
+      background:rgba(139,92,246,.14);
+      color:#ede9fe;
+    }
+
+    .concept-btn{
+      border-color:rgba(167,139,250,.34);
+      background:rgba(139,92,246,.14);
+      color:#ede9fe;
+    }
+
+    .tip-toast{
+      position:fixed;
+      left:50%;
+      bottom:20px;
+      z-index:2600;
+      width:min(560px, calc(100vw - 32px));
+      padding:13px 16px;
+      border-radius:18px;
+      border:1px solid rgba(56,189,248,.28);
+      background:rgba(15,23,42,.94);
+      color:#e5edf8;
+      box-shadow:0 18px 46px rgba(0,0,0,.38);
+      backdrop-filter:blur(10px);
+      transform:translate(-50%, 18px);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity 260ms ease, transform 260ms ease;
+      font-size:13px;
+      line-height:1.48;
+      font-weight:800;
+    }
+
+    .tip-toast.show{
+      opacity:1;
+      transform:translate(-50%, 0);
+    }
+
+    .tip-toast strong{
+      color:#bae6fd;
+    }
+
+    .concept-modal{
+      position:fixed;
+      inset:0;
+      z-index:2900;
+      display:none;
+      place-items:center;
+      padding:24px;
+      background:rgba(2,6,23,.80);
+      backdrop-filter:blur(8px);
+    }
+
+    .concept-modal.show{
+      display:grid;
+    }
+
+    .concept-modal-card{
+      width:min(940px,95vw);
+      max-height:92vh;
+      overflow:hidden;
+      border-radius:28px;
+      border:1px solid rgba(148,163,184,.28);
+      background:rgba(15,23,42,.97);
+      box-shadow:0 34px 90px rgba(0,0,0,.58);
+      display:grid;
+      grid-template-rows:auto minmax(0,1fr);
+    }
+
+    .concept-table-wrap{
+      min-height:0;
+      overflow:auto;
+      padding:16px 18px 18px;
+    }
+
+    .concept-callout{
+      margin:0 0 14px;
+      padding:11px 13px;
+      border-radius:16px;
+      border:1px solid rgba(56,189,248,.22);
+      background:rgba(56,189,248,.10);
+      color:#dbeafe;
+      font-size:13px;
+      line-height:1.55;
+      font-weight:750;
+    }
+
+    .pair-card-grid{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0, 1fr));
+      gap:12px;
+    }
+
+    .pair-card{
+      overflow:hidden;
+      border-radius:22px;
+      border:1px solid rgba(148,163,184,.22);
+      background:linear-gradient(180deg, rgba(30,41,59,.88), rgba(2,6,23,.46));
+      box-shadow:0 16px 36px rgba(0,0,0,.22);
+    }
+
+    .pair-card-head{
+      padding:11px 12px;
+      background:rgba(56,189,248,.12);
+      border-bottom:1px solid rgba(148,163,184,.16);
+    }
+
+    .pair-card-head strong{
+      display:block;
+      color:#f8fafc;
+      font-size:15px;
+      letter-spacing:-.03em;
+    }
+
+    .pair-card-head span{
+      display:block;
+      margin-top:3px;
+      color:#bae6fd;
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .pair-card-body{
+      display:grid;
+      gap:9px;
+      padding:12px;
+    }
+
+    .rock-pair-box{
+      padding:10px;
+      border-radius:16px;
+      background:rgba(15,23,42,.72);
+      border:1px solid rgba(148,163,184,.16);
+    }
+
+    .rock-pair-box b{
+      display:block;
+      margin-bottom:4px;
+      color:#fff;
+      font-size:15px;
+    }
+
+    .rock-pair-box small{
+      display:block;
+      color:#cbd5e1;
+      font-size:12px;
+      line-height:1.42;
+      font-weight:700;
+    }
+
+    .pair-arrow{
+      text-align:center;
+      color:#93c5fd;
+      font-size:12px;
+      font-weight:950;
+      line-height:1.4;
+    }
+
+    .pair-point{
+      margin:0;
+      color:#dbeafe;
+      font-size:12px;
+      line-height:1.45;
+      font-weight:750;
+    }
+
+    @media (max-width:900px){
+      .pair-card-grid{
+        grid-template-columns:1fr;
+      }
+    }
+
     .photo-modal{
       position:fixed;
       inset:0;
@@ -1584,13 +1757,9 @@
             <button class="secondary compare-btn" id="compareBtn" type="button">동시 비교</button>
           </div>
           <button class="secondary" id="resetBtn" type="button">초기화</button>
+          <button class="secondary concept-btn" id="pairInfoBtn" type="button">화성암 짝 비교표</button>
         </div>
 
-        <div class="box">
-          <p class="note">
-            ※ 냉각 막대는 정확한 초 단위가 아니라 상대적인 빠르기를 보여 주는 모형입니다. 비커를 오래 붓을수록 해당 성분 함량이 더 커집니다.
-          </p>
-        </div>
       </aside>
 
       <section class="panel lab">
@@ -1637,6 +1806,8 @@
       </section>
     </section>
   </main>
+
+  <div class="tip-toast" id="tipToast" aria-live="polite"></div>
 
   <div class="cooling-overlay" id="coolingOverlay">
     <div class="cooling-window">
@@ -1695,6 +1866,84 @@
     </div>
   </div>
 
+  <div class="concept-modal" id="pairModal" aria-hidden="true">
+    <div class="concept-modal-card" role="dialog" aria-modal="true" aria-labelledby="pairModalTitle">
+      <div class="photo-modal-head">
+        <div>
+          <h2 id="pairModalTitle">화성암 짝 비교</h2>
+          <p id="pairModalSubtitle">성분이 비슷해도 어디에서 식느냐에 따라 암석 이름과 결정 크기가 달라집니다.</p>
+        </div>
+        <div class="head-actions">
+          <button class="photo-modal-close" id="pairModalClose" type="button">닫기</button>
+        </div>
+      </div>
+      <div class="concept-table-wrap">
+        <p class="concept-callout">
+          <strong>핵심만 기억!</strong> 지하 깊은 곳에서 천천히 식으면 결정이 큰 <strong>심성암</strong>, 지표 부근에서 빠르게 식으면 결정이 작은 <strong>화산암</strong>이 됩니다.
+        </p>
+
+        <div class="pair-card-grid">
+          <article class="pair-card">
+            <div class="pair-card-head">
+              <strong>밝은 성분이 많을 때</strong>
+              <span>밝은색 암석 쌍</span>
+            </div>
+            <div class="pair-card-body">
+              <div class="rock-pair-box">
+                <b>화강암</b>
+                <small>지하 깊은 곳에서 천천히 식음<br />큰 결정이 잘 보임</small>
+              </div>
+              <div class="pair-arrow">성분은 비슷하지만<br />식는 곳과 속도가 달라요</div>
+              <div class="rock-pair-box">
+                <b>유문암</b>
+                <small>지표 부근에서 빠르게 식음<br />결정이 작아 잘 안 보일 수 있음</small>
+              </div>
+              <p class="pair-point">둘 다 밝은 광물 성분이 많은 편입니다.</p>
+            </div>
+          </article>
+
+          <article class="pair-card">
+            <div class="pair-card-head">
+              <strong>중간 성분일 때</strong>
+              <span>회색 계열 암석 쌍</span>
+            </div>
+            <div class="pair-card-body">
+              <div class="rock-pair-box">
+                <b>섬록암</b>
+                <small>지하 깊은 곳에서 천천히 식음<br />큰 결정이 섞여 보임</small>
+              </div>
+              <div class="pair-arrow">성분은 비슷하지만<br />결정 크기가 달라요</div>
+              <div class="rock-pair-box">
+                <b>안산암</b>
+                <small>지표 부근에서 빠르게 식음<br />작은 결정이 많음</small>
+              </div>
+              <p class="pair-point">밝은 성분과 어두운 성분이 함께 섞인 암석입니다.</p>
+            </div>
+          </article>
+
+          <article class="pair-card">
+            <div class="pair-card-head">
+              <strong>어두운 성분이 많을 때</strong>
+              <span>어두운색 암석 쌍</span>
+            </div>
+            <div class="pair-card-body">
+              <div class="rock-pair-box">
+                <b>반려암</b>
+                <small>지하 깊은 곳에서 천천히 식음<br />어두운 큰 결정이 보임</small>
+              </div>
+              <div class="pair-arrow">성분은 비슷하지만<br />생성 장소가 달라요</div>
+              <div class="rock-pair-box">
+                <b>현무암</b>
+                <small>지표 부근에서 빠르게 식음<br />결정이 매우 작을 수 있음</small>
+              </div>
+              <p class="pair-point">둘 다 어두운 광물 성분이 많은 편입니다.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     const els = {
       brightBtn: document.getElementById("brightBtn"),
@@ -1710,6 +1959,10 @@
       rockRealPhoto: document.getElementById("rockRealPhoto"),
       rockPhotoHint: document.getElementById("rockPhotoHint"),
       realRockCta: document.getElementById("realRockCta"),
+      tipToast: document.getElementById("tipToast"),
+      pairInfoBtn: document.getElementById("pairInfoBtn"),
+      pairModal: document.getElementById("pairModal"),
+      pairModalClose: document.getElementById("pairModalClose"),
       photoModal: document.getElementById("photoModal"),
       photoModalImg: document.getElementById("photoModalImg"),
       photoModalTitle: document.getElementById("photoModalTitle"),
@@ -1751,6 +2004,7 @@
     let activeSession = 0;
     let currentPhotoRock = null;
     let photoZoom = 1;
+    let tipTimer = null;
 
     const rockImages = {
       "화강암": "images/granite.png",
@@ -1857,6 +2111,22 @@
       `;
     }
 
+    function showTip(message, duration = 5200) {
+      if (!els.tipToast) return;
+      clearTimeout(tipTimer);
+      els.tipToast.innerHTML = message;
+      els.tipToast.classList.add("show");
+      tipTimer = setTimeout(() => {
+        els.tipToast.classList.remove("show");
+      }, duration);
+    }
+
+    function hideTip() {
+      if (!els.tipToast) return;
+      clearTimeout(tipTimer);
+      els.tipToast.classList.remove("show");
+    }
+
     function createGhost(type) {
       const source = type === "bright" ? els.brightBtn : els.darkBtn;
       const color = type === "bright" ? "#fde68a" : "#334155";
@@ -1887,6 +2157,7 @@
       window.addEventListener("pointermove", moveBeaker);
       window.addEventListener("pointerup", endBeakerDrag, { once: true });
       els.statusText.textContent = "비커를 지하 깊은 마그마방으로 이동";
+      showTip("<strong>잠깐!</strong> 이 비커는 실제 물질을 붓는 것이 아니라, 마그마 성분을 바꿔 보는 가상 조절 도구예요.");
     }
 
     function moveGhost(x, y) {
@@ -1970,6 +2241,7 @@
       const droppedOnMagma = inside(els.magmaChamber, event.clientX, event.clientY);
       if (droppedOnMagma) {
         els.statusText.textContent = "성분 조절 완료";
+        showTip("<strong>성분 조절 완료!</strong> 실제 자연에서는 누가 붓는 것이 아니라, 마그마마다 처음부터 성분이 달라요.");
       } else {
         els.statusText.textContent = "마그마방 위에서 기울이면 성분이 천천히 증가합니다";
       }
@@ -1983,6 +2255,11 @@
         btn.classList.toggle("active", btn.dataset.location === type);
       });
       els.statusText.textContent = type === "deep" ? "깊은 곳 느린 냉각 선택" : "지표 부근 빠른 냉각 선택";
+      if (type === "surface") {
+        showTip("<strong>용어 확인!</strong> 지하에 있을 때는 마그마, 지표 밖으로 나온 뒤에는 용암이라고 불러요.");
+      } else {
+        showTip("<strong>깊은 곳 냉각</strong>은 천천히 식어서 결정 알갱이가 크게 자라는 경우를 보여줘요.");
+      }
       resetResultText();
       updateUI();
     }
@@ -2296,6 +2573,19 @@
       els.photoModal.setAttribute("aria-hidden", "true");
     }
 
+    function openPairModal() {
+      if (!els.pairModal) return;
+      hideTip();
+      els.pairModal.classList.add("show");
+      els.pairModal.setAttribute("aria-hidden", "false");
+    }
+
+    function closePairModal() {
+      if (!els.pairModal) return;
+      els.pairModal.classList.remove("show");
+      els.pairModal.setAttribute("aria-hidden", "true");
+    }
+
     function reflectRockResult() {
       const rock = currentRock();
       els.rockPreview.classList.add("ready");
@@ -2313,6 +2603,11 @@
         <span class="fact">어두운 ${100 - bright}%</span>
         <span class="fact">${locationType === "deep" ? "깊은 곳 냉각" : "지표 부근 냉각"}</span>
       `;
+      if (locationType === "surface") {
+        showTip("<strong>화산암 관찰 팁!</strong> 빠르게 식은 암석은 결정이 너무 작아서 실제로는 맨눈에 잘 안 보일 수 있어요.");
+      } else {
+        showTip("<strong>구분 팁!</strong> 암석은 색만 보고 정하지 않고, 들어 있는 광물과 결정 크기, 생긴 장소를 함께 봐요.");
+      }
     }
 
     function showPopup(mode) {
@@ -2324,29 +2619,37 @@
 
       if (mode === "slow") {
         els.coolingTitle.textContent = "느리게 냉각 보기";
-        els.coolingSubtitle.textContent = "지하 깊은 곳의 마그마 방에서 광물핵이 계속 자라고, 덩어리의 색도 마그마색에서 암석색으로 천천히 바뀝니다.";
+        els.coolingSubtitle.textContent = "지하 깊은 곳에서는 마그마가 천천히 식어서 결정 알갱이가 크게 자라요.";
         els.bar1Label.textContent = "느린 냉각 정도";
         els.bar2Row.style.display = "none";
-        els.coolingNote.textContent = "느리게 냉각에서는 처음 생긴 광물핵이 긴 시간 동안 계속 커지고, 바탕색도 점점 암석 고유의 색으로 굳어 갑니다.";
+        els.coolingNote.textContent = "천천히 식으면 결정이 자랄 시간이 충분해서 알갱이가 크게 보입니다.";
       } else if (mode === "fast") {
         els.coolingTitle.textContent = "빠르게 냉각 보기";
-        els.coolingSubtitle.textContent = "마그마가 분출구에서 분출된 뒤 화산의 경사면을 따라 흐르고, 지표 부근에서 빠르게 식으면서 색이 급하게 암석색으로 바뀝니다.";
+        els.coolingSubtitle.textContent = "지표 밖으로 나온 용암은 빠르게 식어서 작은 결정이 만들어져요.";
         els.bar1Label.textContent = "빠른 냉각 정도";
         els.bar2Row.style.display = "none";
-        els.coolingNote.textContent = "빠른 냉각은 분출된 용암이 짧은 시간 안에 굳으면서 작은 광물이 많이 생기고, 밝은 용암색이 빠르게 암석색으로 변합니다.";
+        els.coolingNote.textContent = "화산암의 결정은 매우 작아서 실제로는 맨눈에 잘 안 보일 수도 있어요.";
       } else {
         els.coolingTitle.textContent = "동시 비교 보기";
-        els.coolingSubtitle.textContent = "한 화산 단면에서 지하 깊은 곳의 느린 냉각과 지표 위의 빠른 냉각을 동시에 비교하며, 색 변화와 광물 성장 차이를 함께 봅니다.";
+        els.coolingSubtitle.textContent = "같은 마그마라도 어디에서 식는지에 따라 결정 크기와 암석 이름이 어떻게 달라지는지 비교해 봐요.";
         els.bar1Label.textContent = "느린 냉각 정도";
         els.bar2Label.textContent = "빠른 냉각 정도";
         els.bar2Row.style.display = "grid";
-        els.coolingNote.textContent = "느린 냉각은 광물핵이 오래 자라고 색이 천천히 굳으며, 빠른 냉각은 더 많은 작은 광물이 빠르게 생기면서 색도 급하게 바뀝니다.";
+        els.coolingNote.textContent = "중요한 차이는 결정의 개수보다 크기예요. 천천히 식으면 크고, 빠르게 식으면 작아집니다.";
       }
 
       const scene = setupScene(mode);
       const deepDuration = 9000;
       const fastDelay = 850;
       const fastDuration = 1050;
+
+      if (mode === "fast") {
+        showTip("<strong>빠른 냉각!</strong> 지표 밖으로 나온 용암은 빨리 식어서 결정이 작게 만들어져요.");
+      } else if (mode === "slow") {
+        showTip("<strong>느린 냉각!</strong> 지하 깊은 곳에서는 천천히 식어서 결정이 크게 자랄 수 있어요.");
+      } else {
+        showTip("<strong>비교 포인트!</strong> 결정의 개수보다 결정의 크기 차이를 먼저 봐요.");
+      }
 
       if (mode === "slow") {
         animateSolidification(scene.deepMold, deepDuration, sessionId);
@@ -2406,6 +2709,7 @@
       resetResultText();
       els.statusText.textContent = "비커를 지하 깊은 마그마방에 부어 보세요";
       updateUI();
+      showTip("<strong>다시 시작!</strong> 비커는 마그마 성분을 바꿔 보는 가상 도구예요.");
     }
 
     els.brightBtn.addEventListener("pointerdown", startBeakerDrag);
@@ -2416,6 +2720,7 @@
     els.startCoolingBtn.addEventListener("click", () => showPopup(locationType === "deep" ? "slow" : "fast"));
     els.compareBtn.addEventListener("click", () => showPopup("compare"));
     els.resetBtn.addEventListener("click", resetAll);
+    els.pairInfoBtn.addEventListener("click", openPairModal);
     els.closeCoolingBtn.addEventListener("click", closeCoolingOverlay);
     els.rockPreview.addEventListener("click", openPhotoModal);
     els.rockPreview.addEventListener("keydown", event => {
@@ -2439,8 +2744,15 @@
     els.photoModal.addEventListener("click", event => {
       if (event.target === els.photoModal) closePhotoModal();
     });
+    els.pairModalClose.addEventListener("click", closePairModal);
+    els.pairModal.addEventListener("click", event => {
+      if (event.target === els.pairModal) closePairModal();
+    });
     window.addEventListener("keydown", event => {
-      if (event.key === "Escape") closePhotoModal();
+      if (event.key === "Escape") {
+        closePhotoModal();
+        closePairModal();
+      }
       if (!els.photoModal.classList.contains("show")) return;
       if (event.key === "+" || event.key === "=") setPhotoZoom(photoZoom + 0.25);
       if (event.key === "-" || event.key === "_") setPhotoZoom(photoZoom - 0.25);
@@ -2449,6 +2761,9 @@
 
     updateUI();
     resetResultText();
+    setTimeout(() => {
+      showTip("<strong>학습 안내</strong> 이 실험은 실제 자연을 쉽게 이해하기 위한 모형이에요. 암석은 색만 보지 말고 결정 크기와 생긴 장소도 함께 봐요.", 6800);
+    }, 900);
   </script>
 </body>
 </html>
