@@ -259,7 +259,7 @@
     }
 
     .bright-fill{
-      background:linear-gradient(90deg,#f7b6cc,#fff1f5);
+      background:linear-gradient(90deg,#fde68a,#f8fafc);
     }
 
     .dark-fill{
@@ -1535,7 +1535,7 @@
         <div class="box">
           <h2>🥼 1. 마그마 성분 비커</h2>
           <div class="beakers">
-            <button class="beaker-card" id="brightBtn" data-type="bright" style="--liquid:#f5b2c9" type="button">
+            <button class="beaker-card" id="brightBtn" data-type="bright" style="--liquid:#fde68a" type="button">
               <div class="beaker-label">밝은 광물 성분</div>
               <div class="beaker-desc">석영·장석(연분홍 느낌) 계열이 많은 느낌</div>
               <div class="beaker"><div class="liquid"></div></div>
@@ -1768,6 +1768,7 @@
           type: "심성암",
           texture: "큰 결정",
           explain: "깊은 곳에서 천천히 식어 결정이 크게 자랐고, 밝은 광물 성분이 많아 밝은색 심성암인 화강암이 되었습니다.",
+          minerals: "석영·장석·흑운모",
           a: "#e5e7eb",
           b: "#a8a29e"
         },
@@ -1776,6 +1777,7 @@
           type: "심성암",
           texture: "큰 결정",
           explain: "깊은 곳에서 천천히 식어 결정이 크게 자랐고, 밝은 성분과 어두운 성분이 섞여 중간색 심성암인 섬록암이 되었습니다.",
+          minerals: "사장석·각섬석·흑운모",
           a: "#a8a29e",
           b: "#57534e"
         },
@@ -1784,6 +1786,7 @@
           type: "심성암",
           texture: "큰 결정",
           explain: "깊은 곳에서 천천히 식어 결정이 크게 자랐고, 어두운 광물 성분이 많아 어두운색 심성암인 반려암이 되었습니다.",
+          minerals: "휘석·사장석·감람석",
           a: "#475569",
           b: "#111827"
         }
@@ -1794,6 +1797,7 @@
           type: "화산암",
           texture: "작은 결정",
           explain: "마그마가 지표 밖으로 분출된 뒤 빠르게 식어 결정이 작게 자랐고, 밝은 광물 성분이 많아 밝은색 화산암인 유문암이 되었습니다.",
+          minerals: "석영·장석",
           a: "#f1f5f9",
           b: "#cbd5e1"
         },
@@ -1802,6 +1806,7 @@
           type: "화산암",
           texture: "작은 결정",
           explain: "마그마가 지표 밖으로 분출된 뒤 빠르게 식어 결정이 작게 자랐고, 밝은 성분과 어두운 성분이 섞여 중간색 화산암인 안산암이 되었습니다.",
+          minerals: "사장석·각섬석·휘석",
           a: "#94a3b8",
           b: "#475569"
         },
@@ -1810,6 +1815,7 @@
           type: "화산암",
           texture: "작은 결정",
           explain: "마그마가 지표 밖으로 분출된 뒤 빠르게 식어 결정이 작게 자랐고, 어두운 광물 성분이 많아 어두운색 화산암인 현무암이 되었습니다.",
+          minerals: "휘석·사장석·감람석",
           a: "#334155",
           b: "#020617"
         }
@@ -1853,7 +1859,7 @@
 
     function createGhost(type) {
       const source = type === "bright" ? els.brightBtn : els.darkBtn;
-      const color = type === "bright" ? "#f5b2c9" : "#334155";
+      const color = type === "bright" ? "#fde68a" : "#334155";
       const ghost = document.createElement("div");
       ghost.className = "beaker-ghost";
       ghost.style.setProperty("--liquid", color);
@@ -2074,15 +2080,71 @@
       return min + Math.random() * (max - min);
     }
 
-    function grainColor(isBright) {
-      return isBright
-        ? ["#f8fafc", "#f7b6cc", "#e5e7eb", "#fbcfe8"][Math.floor(Math.random() * 4)]
-        : ["#111827", "#334155", "#57534e", "#1f2937"][Math.floor(Math.random() * 4)];
+    const mineralPalettes = {
+      "화강암": [
+        { color: "#f8fafc", weight: 28 },
+        { color: "#e7e5e4", weight: 24 },
+        { color: "#f3c1d4", weight: 22 },
+        { color: "#111827", weight: 14 },
+        { color: "#94a3b8", weight: 12 }
+      ],
+      "섬록암": [
+        { color: "#f1f5f9", weight: 28 },
+        { color: "#cbd5e1", weight: 18 },
+        { color: "#94a3b8", weight: 18 },
+        { color: "#334155", weight: 20 },
+        { color: "#111827", weight: 16 }
+      ],
+      "반려암": [
+        { color: "#111827", weight: 28 },
+        { color: "#1f2937", weight: 22 },
+        { color: "#475569", weight: 16 },
+        { color: "#d1d5db", weight: 16 },
+        { color: "#a3b18a", weight: 10 },
+        { color: "#9ca3af", weight: 8 }
+      ],
+      "유문암": [
+        { color: "#f8fafc", weight: 34 },
+        { color: "#e5e7eb", weight: 26 },
+        { color: "#f3c1d4", weight: 18 },
+        { color: "#ede9fe", weight: 12 },
+        { color: "#475569", weight: 10 }
+      ],
+      "안산암": [
+        { color: "#e5e7eb", weight: 22 },
+        { color: "#cbd5e1", weight: 18 },
+        { color: "#94a3b8", weight: 22 },
+        { color: "#475569", weight: 20 },
+        { color: "#1f2937", weight: 18 }
+      ],
+      "현무암": [
+        { color: "#111827", weight: 35 },
+        { color: "#1f2937", weight: 24 },
+        { color: "#334155", weight: 18 },
+        { color: "#9ca3af", weight: 10 },
+        { color: "#a3b18a", weight: 7 },
+        { color: "#57534e", weight: 6 }
+      ]
+    };
+
+    function pickWeightedColor(palette) {
+      const total = palette.reduce((sum, item) => sum + item.weight, 0);
+      let roll = Math.random() * total;
+      for (const item of palette) {
+        roll -= item.weight;
+        if (roll <= 0) return item.color;
+      }
+      return palette[palette.length - 1].color;
+    }
+
+    function grainColor() {
+      const rock = currentRock();
+      const palette = mineralPalettes[rock.name] || mineralPalettes["섬록암"];
+      return pickWeightedColor(palette);
     }
 
     function addGrain(target, deep, initialScale = null, finalDelay = 30, growDur = null) {
       if (!target) return null;
-      const isBright = Math.random() < bright / 100;
       const grain = document.createElement("div");
       grain.className = "mineral-grain";
 
@@ -2090,7 +2152,7 @@
       grain.style.setProperty("--size", finalSize + "px");
       grain.style.setProperty("--x", randomBetween(5, 88) + "%");
       grain.style.setProperty("--y", randomBetween(8, 76) + "%");
-      grain.style.setProperty("--color", grainColor(isBright));
+      grain.style.setProperty("--color", grainColor());
       grain.style.setProperty("--rot", randomBetween(-80, 80) + "deg");
       grain.style.setProperty("--time", (deep ? randomBetween(600, 1100) : randomBetween(220, 480)) + "ms");
       target.appendChild(grain);
@@ -2241,15 +2303,16 @@
       setRockPhoto(rock);
       els.resultTitle.textContent = `결과: ${rock.name}`;
       els.resultExplain.textContent = rock.explain;
+      els.statusText.textContent = rock.name + " 생성 완료";
+      updateUI();
       els.facts.innerHTML = `
         <span class="fact">${rock.type}</span>
         <span class="fact">${rock.texture}</span>
+        <span class="fact">대표 광물: ${rock.minerals}</span>
         <span class="fact">밝은 ${bright}%</span>
         <span class="fact">어두운 ${100 - bright}%</span>
         <span class="fact">${locationType === "deep" ? "깊은 곳 냉각" : "지표 부근 냉각"}</span>
       `;
-      els.statusText.textContent = rock.name + " 생성 완료";
-      updateUI();
     }
 
     function showPopup(mode) {
