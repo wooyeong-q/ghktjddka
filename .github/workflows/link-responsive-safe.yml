@@ -1,4 +1,4 @@
-name: Link responsive safe stylesheet
+name: Link responsive safe stylesheets
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Link responsive stylesheet
+      - name: Link responsive stylesheets
         shell: bash
         run: |
           python - <<'PY'
@@ -25,13 +25,23 @@ jobs:
 
           path = Path('index.html')
           text = path.read_text(encoding='utf-8')
-          link = '  <link rel="stylesheet" href="./responsive-safe.css?v=20260716-1" />\n'
-          if 'responsive-safe.css' not in text:
-              text = text.replace('</head>', link + '</head>', 1)
+          links = [
+              '  <link rel="stylesheet" href="./responsive-safe.css?v=20260716-1" />\n',
+              '  <link rel="stylesheet" href="./popup-mobile-fix.css?v=20260716-2" />\n',
+          ]
+
+          changed = False
+          for link in links:
+              filename = link.split('./', 1)[1].split('?', 1)[0]
+              if filename not in text:
+                  text = text.replace('</head>', link + '</head>', 1)
+                  changed = True
+
+          if changed:
               path.write_text(text, encoding='utf-8')
-              print('Responsive stylesheet linked.')
+              print('Responsive stylesheets linked.')
           else:
-              print('Responsive stylesheet already linked; deployment refresh only.')
+              print('Responsive stylesheets already linked; deployment refresh only.')
           PY
 
       - name: Commit index update
@@ -44,5 +54,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
-          git commit -m '화성암 실험실 모바일 태블릿 반응형 스타일 연결'
+          git commit -m '화성암 냉각 팝업 모바일 보정 스타일 연결'
           git push
