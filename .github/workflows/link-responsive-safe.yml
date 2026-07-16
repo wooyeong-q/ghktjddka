@@ -31,7 +31,7 @@ jobs:
               path.write_text(text, encoding='utf-8')
               print('Responsive stylesheet linked.')
           else:
-              print('Responsive stylesheet already linked.')
+              print('Responsive stylesheet already linked; deployment refresh only.')
           PY
 
       - name: Commit index update
