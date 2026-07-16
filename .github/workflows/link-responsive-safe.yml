@@ -1,0 +1,48 @@
+name: Link responsive safe stylesheet
+
+on:
+  push:
+    paths:
+      - '.github/workflows/link-responsive-safe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-index:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Link responsive stylesheet
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('index.html')
+          text = path.read_text(encoding='utf-8')
+          link = '  <link rel="stylesheet" href="./responsive-safe.css?v=20260716-1" />\n'
+          if 'responsive-safe.css' not in text:
+              text = text.replace('</head>', link + '</head>', 1)
+              path.write_text(text, encoding='utf-8')
+              print('Responsive stylesheet linked.')
+          else:
+              print('Responsive stylesheet already linked.')
+          PY
+
+      - name: Commit index update
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo 'No changes to commit.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m '화성암 실험실 모바일 태블릿 반응형 스타일 연결'
+          git push
