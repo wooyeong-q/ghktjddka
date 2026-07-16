@@ -1,0 +1,5 @@
+/* IGNEOUS_CORE_RESPONSIVE */
+@media(max-width:1120px){
+.app{width:calc(100vw - 14px);padding:8px 0}.main{grid-template-columns:minmax(292px,32vw) minmax(0,1fr);gap:8px}.left{padding:8px;gap:7px}.box{padding:9px}.beaker-card{min-height:142px}.stage{min-height:500px}.volcano{transform:translateX(-50%) scale(.84);transform-origin:bottom center}.magma-chamber{width:250px;height:136px}.result-panel{grid-template-columns:minmax(170px,34%) 1fr}}
+@media(max-width:900px) and (min-width:701px){
+header{align-items:center}.status{min-width:150px}.main{grid-template-columns:minmax(270px,36vw) minmax(0,1fr)}.beakers,.location-grid{grid-template-columns:1fr}.beaker-card{min-height:108px}.action-row.two{grid-template-columns:1fr}.stage{min-height:480px}.volcano{transform:translateX(-50%) scale(.68)}.magma-chamber{width:220px;height:122px;bottom:42px}.result-panel{grid-template-columns:1fr;padding:10px}.rock-preview{height:150px}}
