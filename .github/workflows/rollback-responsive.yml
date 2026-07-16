@@ -1,0 +1,37 @@
+name: Restore working igneous lab
+
+on:
+  push:
+    paths:
+      - '.github/workflows/rollback-responsive.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Remove responsive links temporarily
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          text = p.read_text(encoding='utf-8')
+          text = text.replace('  <link rel="stylesheet" href="responsive-core.css" />\n', '')
+          text = text.replace('  <link rel="stylesheet" href="responsive-mobile.css" />\n', '')
+          text = text.replace('  <script src="responsive-mobile.js"></script>\n', '')
+          p.write_text(text, encoding='utf-8')
+          PY
+      - name: Commit restored page
+        run: |
+          if git diff --quiet; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m '화성암 실험실 정상판 긴급 복구'
+          git push
