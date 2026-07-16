@@ -1,0 +1,196 @@
+/* Mobile cooling-popup fixes. Experiment logic is unchanged. */
+
+@media (max-width: 700px) {
+  .cooling-overlay {
+    padding: 0 !important;
+  }
+
+  .cooling-window {
+    width: 100vw !important;
+    height: 100dvh !important;
+    max-width: none !important;
+    max-height: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    grid-template-rows: auto minmax(0, 1fr) auto !important;
+  }
+
+  .cooling-head {
+    padding: 9px 10px !important;
+    gap: 8px !important;
+  }
+
+  .cooling-head h2 {
+    font-size: 17px !important;
+  }
+
+  .cooling-head p {
+    max-width: 58vw;
+    font-size: 10px !important;
+    line-height: 1.25 !important;
+  }
+
+  .cooling-head .status {
+    display: none !important;
+  }
+
+  .close-btn {
+    min-width: 56px;
+    min-height: 40px;
+    padding: 7px 10px !important;
+  }
+
+  .cooling-scene {
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .mode-progress {
+    gap: 6px !important;
+    padding: 8px 10px calc(9px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .mode-progress .bar-row {
+    grid-template-columns: 82px minmax(0, 1fr) 42px !important;
+    gap: 6px !important;
+    font-size: 10px !important;
+  }
+
+  .foot-note {
+    font-size: 10px !important;
+    line-height: 1.3 !important;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 700px) {
+  .cooling-window {
+    grid-template-rows: 52px minmax(0, 1fr) auto !important;
+  }
+
+  .cooling-head {
+    align-items: center !important;
+    padding: 5px 9px !important;
+  }
+
+  .cooling-head h2 {
+    font-size: 16px !important;
+    white-space: nowrap;
+  }
+
+  .cooling-head p {
+    max-width: 62vw;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .close-btn {
+    min-width: 54px;
+    min-height: 36px;
+    font-size: 12px !important;
+  }
+
+  .popup-volcano {
+    top: calc(42% - 174px) !important;
+    width: 450px !important;
+    height: 174px !important;
+  }
+
+  .popup-volcano .cone-back {
+    width: 450px !important;
+    height: 170px !important;
+  }
+
+  .popup-volcano .cone-front {
+    width: 342px !important;
+    height: 150px !important;
+  }
+
+  .popup-volcano .crater {
+    width: 86px !important;
+    height: 21px !important;
+  }
+
+  .popup-volcano .smoke {
+    top: -48px !important;
+    width: 116px !important;
+    height: 56px !important;
+  }
+
+  .popup-volcano .conduit {
+    top: 13px !important;
+    width: 9px !important;
+    height: 322px !important;
+  }
+
+  .mold-deep {
+    bottom: 30px !important;
+    --mold-w: 238px !important;
+    --mold-h: 138px !important;
+  }
+
+  .mold-surface {
+    top: calc(42% - 96px) !important;
+    transform: translateX(92px) rotate(-14deg) !important;
+    --mold-w: 190px !important;
+    --mold-h: 86px !important;
+  }
+
+  .popup-label {
+    padding: 4px 7px !important;
+    font-size: 9px !important;
+  }
+
+  .popup-label.surface {
+    left: 9px !important;
+    top: calc(42% - 22px) !important;
+  }
+
+  .popup-label.deep {
+    left: 9px !important;
+    bottom: 34px !important;
+  }
+
+  .popup-depth-arrow {
+    left: 27px !important;
+    top: calc(42% + 12px) !important;
+    bottom: 36px !important;
+  }
+
+  .popup-depth-arrow::after {
+    left: 7px !important;
+    font-size: 9px !important;
+  }
+
+  .eruption-column {
+    top: calc(42% - 205px) !important;
+    bottom: 112px !important;
+    width: 12px !important;
+    height: 250px !important;
+  }
+
+  .surface-lava-path {
+    top: calc(42% - 175px) !important;
+    height: 42px !important;
+    transform: translateX(-1px) rotate(29deg) scale(.76) !important;
+  }
+
+  .mode-progress {
+    gap: 4px !important;
+    padding: 5px 9px calc(6px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .mode-progress .bar-row {
+    grid-template-columns: 94px minmax(0, 1fr) 38px !important;
+    font-size: 9px !important;
+  }
+
+  .bar {
+    height: 11px !important;
+  }
+
+  .foot-note {
+    max-height: 28px;
+    overflow: hidden;
+  }
+}
