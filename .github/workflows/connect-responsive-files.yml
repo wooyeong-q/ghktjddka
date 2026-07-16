@@ -1,0 +1,38 @@
+name: Connect responsive files
+
+on:
+  push:
+    paths:
+      - '.github/workflows/connect-responsive-files.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  connect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Link responsive CSS and JS
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          t=p.read_text(encoding='utf-8')
+          if 'responsive-core.css' not in t:
+              t=t.replace('</head>','  <link rel="stylesheet" href="responsive-core.css" />\n  <link rel="stylesheet" href="responsive-mobile.css" />\n</head>',1)
+          if 'responsive-mobile.js' not in t:
+              t=t.replace('</body>','  <script src="responsive-mobile.js"></script>\n</body>',1)
+          p.write_text(t,encoding='utf-8')
+          PY
+      - name: Commit linked index
+        run: |
+          if git diff --quiet; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m '화성암 실험실 반응형 파일 연결'
+          git push
