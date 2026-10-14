@@ -1689,8 +1689,9 @@
   </style>
   <link rel="stylesheet" href="./responsive-safe.css?v=20260716-1" />
   <link rel="stylesheet" href="./popup-mobile-fix.css?v=20260716-2" />
-  <link rel="stylesheet" href="./inquiry.css?v=20261014-2" />
-  <script src="./inquiry-core.js?v=20261014-1"></script>
+  <link rel="stylesheet" href="./observation.css?v=20261014-3" />
+  <script src="./observation-core.js?v=20261014-3"></script>
+  <script src="./observation.js?v=20261014-3"></script>
 </head>
 <body>
   <main class="app">
@@ -1699,11 +1700,11 @@
         <span class="badge">🌋 화성암 생성과정</span>
         <h1>화성암 생성과정</h1>
         <p class="lead">
-          비커를 마그마방에 직접 가져가 성분 비율을 조절하세요. 같은 성분의 마그마를 두 곳에서 식히고, 예상한 결과와 실제 결정의 모습을 비교해 보세요.
+          비커로 성분을 조절하고 냉각 과정을 관찰하세요. 원하는 순간에 멈추고, 여러 실험의 결과를 비교할 수 있습니다.
         </p>
       </div>
       <div class="status">
-        CURRENT STEP
+        실험 상태
         <strong id="statusText">비커를 지하 깊은 마그마방에 부어 보세요</strong>
       </div>
     </header>
@@ -1755,12 +1756,22 @@
           </div>
         </div>
 
+        <div class="box prediction-box">
+          <h2>내 예상 <small>선택 사항</small></h2>
+          <p>같은 성분이면 어느 쪽 결정이 더 클까요?</p>
+          <div class="prediction-choices" role="group" aria-label="같은 성분에서 결정 크기 예상">
+            <button type="button" data-prediction="deep" aria-pressed="false">지하</button>
+            <button type="button" data-prediction="surface" aria-pressed="false">지표</button>
+            <button type="button" data-prediction="same" aria-pressed="false">비슷함</button>
+          </div>
+        </div>
+
         <div class="action-stack">
           <div class="action-row two">
             <button class="primary" id="startCoolingBtn" type="button">냉각 시작</button>
             <button class="secondary compare-btn" id="compareBtn" type="button">동시 비교</button>
           </div>
-          <button class="secondary" id="resetBtn" type="button">초기화</button>
+          <button class="secondary" id="resetBtn" type="button">조건 초기화</button>
           <button class="secondary concept-btn" id="pairInfoBtn" type="button">화성암 짝 비교표</button>
         </div>
 
@@ -1810,6 +1821,10 @@
         </div>
       </section>
     </section>
+    <section class="history-panel" aria-labelledby="historyTitle">
+      <div class="history-head"><div><h2 id="historyTitle">실험 기록</h2><span id="historyCount">0회</span></div><button type="button" id="compareHistoryBtn" disabled>기록 비교</button></div>
+      <div class="history-list" id="historyList"></div>
+    </section>
   </main>
 
   <div class="tip-toast" id="tipToast" aria-live="polite"></div>
@@ -1823,7 +1838,7 @@
         </div>
         <div class="head-actions">
           <div class="status">
-            POPUP
+            관찰 상태
             <strong id="coolingStatus">관찰 중</strong>
           </div>
           <button class="close-btn" id="closeCoolingBtn" type="button">닫기</button>
@@ -1833,6 +1848,14 @@
       <div class="cooling-scene" id="coolingScene"></div>
 
       <div class="mode-progress">
+        <div class="playback-controls">
+          <button type="button" id="pausePlayback" aria-pressed="false">일시정지</button>
+          <button type="button" id="replayPlayback">처음부터</button>
+          <label for="playbackTime">재생 위치</label>
+          <input type="range" id="playbackTime" min="0" max="1000" step="1" value="0" aria-label="냉각 관찰 재생 위치" />
+          <output id="playbackPosition" for="playbackTime">0%</output>
+          <button type="button" id="nextExperiment" hidden>다음 실험</button>
+        </div>
         <div class="bar-row">
           <span id="bar1Label">느린 냉각</span>
           <div class="bar"><div class="bar-fill" id="bar1Fill"></div></div>
@@ -1843,10 +1866,16 @@
           <div class="bar"><div class="bar-fill" id="bar2Fill"></div></div>
           <span id="bar2Text">0%</span>
         </div>
-        <div class="foot-note" id="coolingNote">
-          느린 냉각은 천천히 진행되고, 빠른 냉각은 짧은 시간 안에 진행됩니다.
-        </div>
+        <div class="observation-notes"><p id="predictionRecord" hidden></p><p class="foot-note" id="coolingNote">결정이 생기고 자라는 과정을 관찰합니다.</p><small id="coolingModelNote"></small></div>
       </div>
+    </div>
+  </div>
+
+  <div class="history-modal" id="historyModal" role="dialog" aria-modal="true" aria-labelledby="historyCompareTitle" aria-hidden="true">
+    <div class="history-modal-card">
+      <div class="cooling-head"><div><h2 id="historyCompareTitle">실험 기록 비교</h2><p id="historyCompareSubtitle"></p></div><button class="close-btn" type="button" id="closeHistoryBtn">닫기</button></div>
+      <div class="history-compare-grid" id="historyCompareGrid"></div>
+      <p class="history-model-note">같은 크기의 관찰 모형입니다. 실제 암석의 배율을 나타내지 않습니다. 암석 사진은 각 결과에서 열어볼 수 있습니다.</p>
     </div>
   </div>
 
@@ -2006,21 +2035,11 @@
     let bright = 50;
     let locationType = "deep";
     let drag = null;
-    let activeSession = 0;
     let currentPhotoRock = null;
     let photoZoom = 1;
+    let photoTrigger = null;
     let tipTimer = null;
-    let currentRun = null;
-    let coolingTrigger = null;
-    const inquiry = IgneousInquiry.createFlow();
-    const coolingWindow = els.coolingScene.closest('.cooling-window');
-    const progressPanel = coolingWindow.querySelector('.mode-progress');
     const comparisonResults = document.getElementById('comparisonResults');
-    const inquiryPanel = document.createElement('section');
-    inquiryPanel.className = 'inquiry-panel';
-    inquiryPanel.id = 'inquiryPanel';
-    inquiryPanel.hidden = true;
-    progressPanel.appendChild(inquiryPanel);
 
     const rockImages = {
       "화강암": "images/granite.png",
@@ -2288,252 +2307,8 @@
       els.resultExplain.textContent = "비커를 마그마방에 직접 가져가 부어 성분 비율을 바꾸고, 생성 위치를 선택한 뒤 냉각 시작 또는 동시 비교를 눌러 냉각 과정을 확인하세요.";
     }
 
-    function resetBars() {
-      els.bar1Fill.style.width = "0%";
-      els.bar1Text.textContent = "0%";
-      els.bar2Fill.style.width = "0%";
-      els.bar2Text.textContent = "0%";
-    }
-
     function closeCoolingOverlay() {
-      activeSession += 1;
-      currentRun = null;
-      inquiry.cancel();
-      els.coolingOverlay.classList.remove('show');
-      els.coolingOverlay.setAttribute('aria-hidden', 'true');
-      coolingWindow.classList.remove('compare-mode', 'prediction-mode');
-      progressPanel.hidden = false;
-      inquiryPanel.hidden = true;
-      els.coolingStatus.textContent = '닫힘';
-      if (coolingTrigger?.isConnected) coolingTrigger.focus();
-    }
-
-    function clearCoolingScene() {
-      els.coolingScene.innerHTML = "";
-    }
-
-    function createPopupBase() {
-      clearCoolingScene();
-      els.coolingScene.innerHTML = `
-        <div class="popup-sky-glow"></div>
-        <div class="popup-ground"></div>
-        <div class="popup-depth-arrow"></div>
-        <div class="popup-label surface">지표</div>
-        <div class="popup-label deep">지하 깊은 곳</div>
-        <div class="popup-volcano">
-          <div class="smoke"></div>
-          <div class="cone-back"></div>
-          <div class="conduit"></div>
-          <div class="cone-front"></div>
-          <div class="crater"></div>
-        </div>
-      `;
-    }
-
-    function setupScene(mode) {
-      if (mode === "compare") return setupComparisonScene(currentRun);
-      createPopupBase();
-
-      const deepMold = document.createElement("div");
-      deepMold.className = "rock-mold mold-deep cooling";
-      deepMold.id = "deepMold";
-      deepMold.dataset.label = "굳어가는 암석";
-      deepMold.style.setProperty("--cooling-progress", "0");
-      setMoldColors(deepMold, currentRun.rocks.deep);
-
-      const surfaceMold = document.createElement("div");
-      surfaceMold.className = "rock-mold mold-surface cooling";
-      surfaceMold.id = "surfaceMold";
-      surfaceMold.dataset.label = "굳어가는 암석";
-      surfaceMold.style.setProperty("--cooling-progress", "0");
-      setMoldColors(surfaceMold, currentRun.rocks.surface);
-
-      const eruption = document.createElement("div");
-      eruption.className = "eruption-column";
-      eruption.id = "eruptionColumn";
-
-      const lava = document.createElement("div");
-      lava.className = "surface-lava-path";
-      lava.id = "surfaceLavaPath";
-
-      els.coolingScene.appendChild(deepMold);
-      els.coolingScene.appendChild(surfaceMold);
-      els.coolingScene.appendChild(eruption);
-      els.coolingScene.appendChild(lava);
-
-      if (mode === "slow") {
-        deepMold.classList.add("selected");
-        surfaceMold.style.opacity = ".18";
-        surfaceMold.style.filter = "grayscale(1)";
-        eruption.style.opacity = "0";
-        lava.style.opacity = "0";
-      } else if (mode === "fast") {
-        surfaceMold.classList.add("selected");
-        deepMold.style.opacity = ".18";
-        deepMold.style.filter = "grayscale(1)";
-      } else {
-        if (locationType === "deep") deepMold.classList.add("selected");
-        else surfaceMold.classList.add("selected");
-      }
-
-      return { deepMold, surfaceMold, eruption, lava };
-    }
-
-    function randomBetween(min, max) {
-      return min + Math.random() * (max - min);
-    }
-
-    const mineralPalettes = {
-      "화강암": [
-        { color: "#f8fafc", weight: 28 },
-        { color: "#e7e5e4", weight: 24 },
-        { color: "#f3c1d4", weight: 22 },
-        { color: "#111827", weight: 14 },
-        { color: "#94a3b8", weight: 12 }
-      ],
-      "섬록암": [
-        { color: "#f1f5f9", weight: 28 },
-        { color: "#cbd5e1", weight: 18 },
-        { color: "#94a3b8", weight: 18 },
-        { color: "#334155", weight: 20 },
-        { color: "#111827", weight: 16 }
-      ],
-      "반려암": [
-        { color: "#111827", weight: 28 },
-        { color: "#1f2937", weight: 22 },
-        { color: "#475569", weight: 16 },
-        { color: "#d1d5db", weight: 16 },
-        { color: "#a3b18a", weight: 10 },
-        { color: "#9ca3af", weight: 8 }
-      ],
-      "유문암": [
-        { color: "#f8fafc", weight: 34 },
-        { color: "#e5e7eb", weight: 26 },
-        { color: "#f3c1d4", weight: 18 },
-        { color: "#ede9fe", weight: 12 },
-        { color: "#475569", weight: 10 }
-      ],
-      "안산암": [
-        { color: "#e5e7eb", weight: 22 },
-        { color: "#cbd5e1", weight: 18 },
-        { color: "#94a3b8", weight: 22 },
-        { color: "#475569", weight: 20 },
-        { color: "#1f2937", weight: 18 }
-      ],
-      "현무암": [
-        { color: "#111827", weight: 35 },
-        { color: "#1f2937", weight: 24 },
-        { color: "#334155", weight: 18 },
-        { color: "#9ca3af", weight: 10 },
-        { color: "#a3b18a", weight: 7 },
-        { color: "#57534e", weight: 6 }
-      ]
-    };
-
-    function pickWeightedColor(palette) {
-      const total = palette.reduce((sum, item) => sum + item.weight, 0);
-      let roll = Math.random() * total;
-      for (const item of palette) {
-        roll -= item.weight;
-        if (roll <= 0) return item.color;
-      }
-      return palette[palette.length - 1].color;
-    }
-
-    function grainColor(deep) {
-      const rock = currentRun ? currentRun.rocks[deep ? 'deep' : 'surface'] : currentRock();
-      return pickWeightedColor(mineralPalettes[rock.name] || mineralPalettes['섬록암']);
-    }
-
-    function addGrain(target, deep, initialScale = null, finalDelay = 30, growDur = null) {
-      if (!target) return null;
-      const grain = document.createElement("div");
-      grain.className = "mineral-grain";
-
-      const finalSize = deep ? randomBetween(18, 44) : randomBetween(4, 10);
-      grain.style.setProperty("--size", finalSize + "px");
-      grain.style.setProperty("--x", randomBetween(5, 88) + "%");
-      grain.style.setProperty("--y", randomBetween(8, 76) + "%");
-      grain.style.setProperty("--color", grainColor(deep));
-      grain.style.setProperty("--rot", randomBetween(-80, 80) + "deg");
-      grain.style.setProperty("--time", (deep ? randomBetween(600, 1100) : randomBetween(220, 480)) + "ms");
-      target.appendChild(grain);
-
-      if (initialScale !== null) {
-        const rot = grain.style.getPropertyValue("--rot");
-        grain.style.opacity = ".96";
-        grain.style.animation = 'none';
-        grain.style.transform = `scale(${initialScale}) rotate(${rot})`;
-        setTimeout(() => {
-          grain.style.transition = `transform ${growDur || randomBetween(3600, 5600)}ms ease`;
-          grain.style.transform = `scale(1) rotate(${rot})`;
-        }, finalDelay);
-      }
-      return grain;
-    }
-
-    function spawnGrowingNuclei(target, sessionId, totalDuration = 6200) {
-      const nucleiCount = 58;
-      for (let i = 0; i < nucleiCount; i++) {
-        if (sessionId !== activeSession) return;
-        const delay = 30 + i * 12;
-        const growDuration = totalDuration - delay + randomBetween(120, 380);
-        addGrain(target, true, randomBetween(0.12, 0.22), delay, growDuration);
-      }
-    }
-
-    function spawnFastGrains(target, duration, sessionId, delay = 0) {
-      const startAt = performance.now() + delay;
-      const total = 300;
-      let created = 0;
-      function loop(now) {
-        if (sessionId !== activeSession) return;
-        const elapsed = now - startAt;
-        if (elapsed < 0) { requestAnimationFrame(loop); return; }
-        const desired = Math.min(total, Math.floor(Math.min(1, elapsed / duration) * total));
-        while (created < desired) { addGrain(target, false); created += 1; }
-        if (elapsed < duration) requestAnimationFrame(loop);
-      }
-      requestAnimationFrame(loop);
-    }
-
-    function animateSolidification(target, duration, sessionId, delay = 0) {
-      const startAt = performance.now() + delay;
-      function loop(now) {
-        if (sessionId !== activeSession || !target) return;
-        if (now < startAt) {
-          target.style.setProperty("--cooling-progress", "0");
-          requestAnimationFrame(loop);
-          return;
-        }
-        const t = Math.min(1, (now - startAt) / duration);
-        const eased = 1 - Math.pow(1 - t, 2.1);
-        target.style.setProperty("--cooling-progress", eased.toFixed(3));
-        if (t < 1) requestAnimationFrame(loop);
-      }
-      requestAnimationFrame(loop);
-    }
-
-    function animateBar(fillEl, textEl, duration, sessionId, delay=0) {
-      return new Promise(resolve => {
-        const startAt = performance.now() + delay;
-        function frame(now) {
-          if (sessionId !== activeSession) { resolve(); return; }
-          if (now < startAt) {
-            fillEl.style.width = "0%";
-            textEl.textContent = "0%";
-            requestAnimationFrame(frame);
-            return;
-          }
-          const t = Math.min(1, (now - startAt) / duration);
-          const value = Math.round(t * 100);
-          fillEl.style.width = value + "%";
-          textEl.textContent = value + "%";
-          if (t < 1) requestAnimationFrame(frame);
-          else resolve();
-        }
-        requestAnimationFrame(frame);
-      });
+      observation.close();
     }
 
     function setRockPhoto(rock) {
@@ -2577,6 +2352,7 @@
       const selectedRock = typeof rockName === 'string' ? rockName : currentPhotoRock;
       const src = rockImages[selectedRock];
       if (!src) return;
+      photoTrigger = document.activeElement;
       els.photoModalImg.src = src;
       els.photoModalImg.alt = `${selectedRock} 실제 암석 확대 사진`;
       els.photoModalTitle.textContent = `${selectedRock} 실제 암석 사진`;
@@ -2586,12 +2362,15 @@
       setPhotoZoom(1);
       els.photoModal.classList.add('show');
       els.photoModal.setAttribute('aria-hidden', 'false');
+      els.photoModalClose.focus({ preventScroll: true });
     }
 
     function closePhotoModal() {
       if (!els.photoModal) return;
+      const wasOpen = els.photoModal.classList.contains('show');
       els.photoModal.classList.remove("show");
       els.photoModal.setAttribute("aria-hidden", "true");
+      if (wasOpen && photoTrigger?.isConnected) photoTrigger.focus({ preventScroll: true });
     }
 
     function openPairModal() {
@@ -2620,120 +2399,6 @@
         <span class="fact">대표 광물: ${rock.minerals}</span><span class="fact">밝은 ${run.bright}% · 어두운 ${run.dark}%</span>`;
     }
 
-    function setMoldColors(mold, rock) {
-      mold.style.setProperty('--rock-a', rock.a);
-      mold.style.setProperty('--rock-b', rock.b);
-    }
-
-    function snapshotExperiment(mode) {
-      const composition = category();
-      return Object.freeze({ mode, bright, dark: 100 - bright,
-        location: mode === 'fast' ? 'surface' : mode === 'slow' ? 'deep' : locationType,
-        rocks: Object.freeze({ deep: rockTable.deep[composition], surface: rockTable.surface[composition] }) });
-    }
-
-    function setupComparisonScene(run) {
-      els.coolingScene.innerHTML = `<div class="comparison-grid">
-        <article class="comparison-card"><div class="comparison-card-head"><h3>지하 깊은 곳</h3><span>밝은 ${run.bright}% · 어두운 ${run.dark}%</span></div>
-          <div class="comparison-rock-area"><div id="deepMold" class="rock-mold comparison-rock cooling" data-label="마그마"></div></div>
-          <div id="deepResultLabel" class="comparison-card-foot">같은 확대 기준으로 관찰</div></article>
-        <article class="comparison-card"><div class="comparison-card-head"><h3>지표 부근</h3><span>밝은 ${run.bright}% · 어두운 ${run.dark}%</span></div>
-          <div class="comparison-rock-area surface-area"><div id="surfaceMold" class="rock-mold comparison-rock cooling" data-label="용암"></div></div>
-          <div id="surfaceResultLabel" class="comparison-card-foot">분출한 뒤 식는 용암</div></article>
-      </div>`;
-      const deepMold = document.getElementById('deepMold');
-      const surfaceMold = document.getElementById('surfaceMold');
-      setMoldColors(deepMold, run.rocks.deep);
-      setMoldColors(surfaceMold, run.rocks.surface);
-      return { deepMold, surfaceMold };
-    }
-
-    const predictionLabels = { deep: '지하 깊은 곳', surface: '지표 부근', same: '비슷할 것이다' };
-
-    function requestComparison() {
-      if (inquiry.state().completed) { showPopup('compare'); return; }
-      coolingTrigger = document.activeElement;
-      activeSession += 1;
-      currentRun = null;
-      inquiry.begin(bright);
-      hideTip();
-      resetResultText();
-      els.coolingOverlay.classList.add('show');
-      els.coolingOverlay.setAttribute('aria-hidden', 'false');
-      coolingWindow.classList.add('compare-mode', 'prediction-mode');
-      progressPanel.hidden = true;
-      inquiryPanel.hidden = true;
-      els.coolingTitle.textContent = '첫 비교 · 예상';
-      els.coolingSubtitle.textContent = '비커로 만든 같은 성분의 마그마를 두 장소에서 식힙니다.';
-      els.coolingStatus.textContent = '예상하기';
-      els.coolingScene.innerHTML = `<section class="inquiry-prediction">
-        <p class="inquiry-eyebrow">1 / 3 · 예상</p><h3>어느 쪽에서 결정이 더 크게 만들어질까요?</h3>
-        <div class="inquiry-composition"><span>두 마그마 모두 밝은 ${bright}% · 어두운 ${100 - bright}%</span></div>
-        <div class="inquiry-choices" role="group" aria-label="결정 크기 예상">
-          ${Object.entries(predictionLabels).map(([value, label]) => `<button type="button" class="inquiry-choice" data-prediction="${value}" aria-pressed="false">${label}</button>`).join('')}
-        </div><p class="inquiry-help">지금 떠오르는 생각을 선택하세요. 예상에는 점수를 매기지 않습니다.</p>
-        <button type="button" id="beginComparisonBtn" class="inquiry-start" disabled>예상 후 비교 시작</button>
-      </section>`;
-      els.coolingScene.querySelectorAll('[data-prediction]').forEach(button => button.addEventListener('click', () => {
-        inquiry.predict(button.dataset.prediction);
-        els.coolingScene.querySelectorAll('[data-prediction]').forEach(choice => choice.setAttribute('aria-pressed', String(choice === button)));
-        document.getElementById('beginComparisonBtn').disabled = false;
-      }));
-      document.getElementById('beginComparisonBtn').addEventListener('click', () => {
-        if (inquiry.start()) showPopup('compare');
-      });
-      els.coolingScene.querySelector('[data-prediction]').focus();
-    }
-
-    function showInquiryStep() {
-      const state = inquiry.state();
-      inquiryPanel.hidden = false;
-      if (state.phase === 'observation') {
-        els.coolingTitle.textContent = '첫 비교 · 관찰';
-        els.coolingSubtitle.textContent = '두 암석의 결정 하나하나를 같은 확대 기준으로 살펴보세요.';
-        els.coolingNote.textContent = '관찰이 끝나도 두 결과는 그대로 유지됩니다.';
-        inquiryPanel.innerHTML = `<p class="inquiry-eyebrow">2 / 3 · 관찰</p><h3>관찰한 결과, 어느 쪽 결정이 더 컸나요?</h3>
-          <div class="inquiry-choices" role="group" aria-label="관찰한 결정 크기">
-            <button class="inquiry-choice" type="button" data-observation="deep">지하 깊은 곳</button>
-            <button class="inquiry-choice" type="button" data-observation="surface">지표 부근</button>
-            <button class="inquiry-choice" type="button" data-observation="same">두 곳이 비슷하다</button>
-          </div><p class="inquiry-feedback" role="status"></p>`;
-        inquiryPanel.querySelectorAll('[data-observation]').forEach(button => button.addEventListener('click', () => {
-          if (inquiry.observe(button.dataset.observation)) showInquiryStep();
-          else inquiryPanel.querySelector('.inquiry-feedback').textContent = '두 관찰 창은 같은 확대 기준입니다. 알갱이 하나의 크기를 다시 비교해 보세요.';
-        }));
-      } else if (state.phase === 'explanation') {
-        els.coolingTitle.textContent = '첫 비교 · 이유 설명';
-        els.coolingSubtitle.textContent = '관찰한 결정 크기의 차이를 실험 조건과 연결해 보세요.';
-        inquiryPanel.innerHTML = `<div class="inquiry-record"><span>내 예상: <strong>${predictionLabels[state.prediction]}</strong></span><span>관찰: <strong>지하 깊은 곳의 결정이 더 큼</strong></span></div>
-          <h3>성분이 같은데 결정 크기는 왜 달라졌을까요?</h3>
-          <div class="inquiry-choices" role="group" aria-label="결정 크기가 달라진 이유">
-            <button class="inquiry-choice" type="button" data-explanation="time">결정이 자랄 시간이 달라서</button>
-            <button class="inquiry-choice" type="button" data-explanation="composition">마그마 성분이 달라서</button>
-            <button class="inquiry-choice" type="button" data-explanation="amount">마그마 양이 달라서</button>
-          </div><p class="inquiry-feedback" role="status"></p>`;
-        inquiryPanel.querySelectorAll('[data-explanation]').forEach(button => button.addEventListener('click', () => {
-          if (inquiry.explain(button.dataset.explanation)) {
-            reflectComparisonResults(currentRun);
-            showInquiryStep();
-          } else inquiryPanel.querySelector('.inquiry-feedback').textContent = button.dataset.explanation === 'composition'
-            ? '두 관찰 창 위에 표시된 성분 비율이 같은지 다시 확인해 보세요.'
-            : '두 조건은 같은 성분과 같은 양에서 시작했습니다. 냉각 장면에서 무엇이 달랐는지 떠올려 보세요.';
-        }));
-      } else if (state.phase === 'complete') {
-        els.coolingTitle.textContent = '관찰 결과 · 두 화성암 비교';
-        els.coolingSubtitle.textContent = '성분은 같고, 냉각 조건과 결정 크기가 달랐습니다.';
-        els.coolingStatus.textContent = '탐구 완료';
-        els.coolingNote.textContent = '시간과 결정 크기를 이해하기 위한 확대 모형입니다. 실제 냉각 시간이나 배율을 나타내지는 않습니다.';
-        inquiryPanel.innerHTML = `<div class="inquiry-record"><span>내 예상: <strong>${predictionLabels[state.prediction]}</strong></span><span>관찰: <strong>지하 깊은 곳의 결정이 더 큼</strong></span></div>
-          <p class="inquiry-conclusion">지하 깊은 곳에서는 <strong>천천히 식어 결정이 자랄 시간이 길었습니다.</strong> 지표 부근에서는 빠르게 식어 결정이 충분히 자라기 어려웠습니다.</p>
-          <button type="button" class="inquiry-done">성분을 바꾸며 자유 실험</button>`;
-        inquiryPanel.querySelector('.inquiry-done').addEventListener('click', closeCoolingOverlay);
-      }
-      const firstChoice = inquiryPanel.querySelector('button');
-      firstChoice?.focus({ preventScroll: true });
-    }
-
     function reflectComparisonResults(run) {
       if (!run || run.mode !== 'compare') return;
       updateUI();
@@ -2751,81 +2416,11 @@
           <div><small>${location}</small><strong>${rock.name}</strong><small>${rock.type} · ${rock.texture}</small><p>대표 광물: ${rock.minerals}</p></div></article>`;
       }).join('');
       comparisonResults.querySelectorAll('[data-photo-rock]').forEach(button => button.addEventListener('click', () => openPhotoModal(button.dataset.photoRock)));
-      for (const place of ['deep', 'surface']) {
-        const label = document.getElementById(place + 'ResultLabel');
-        if (label) label.textContent = `${run.rocks[place].name} · ${run.rocks[place].type} · ${run.rocks[place].texture}`;
-        const mold = document.getElementById(place + 'Mold');
-        if (mold) mold.dataset.label = run.rocks[place].name;
-      }
-    }
-
-    function showPopup(mode) {
-      const firstComparison = mode === 'compare' && !inquiry.state().completed;
-      if (!firstComparison) coolingTrigger = document.activeElement;
-      activeSession += 1;
-      const sessionId = activeSession;
-      const run = snapshotExperiment(mode);
-      currentRun = run;
-      hideTip();
-      resetResultText();
-      els.coolingOverlay.classList.add('show');
-      els.coolingOverlay.setAttribute('aria-hidden', 'false');
-      coolingWindow.classList.remove('prediction-mode');
-      coolingWindow.classList.toggle('compare-mode', mode === 'compare');
-      progressPanel.hidden = false;
-      inquiryPanel.hidden = true;
-      els.coolingStatus.textContent = '관찰 중';
-      resetBars();
-      els.bar1Label.textContent = mode === 'fast' ? '지표 관찰 진행' : '지하 관찰 진행';
-      els.bar2Label.textContent = '지표 관찰 진행';
-      els.bar2Row.style.display = mode === 'compare' ? 'grid' : 'none';
-      els.coolingTitle.textContent = mode === 'compare' ? '같은 마그마 · 두 장소 비교' : mode === 'slow' ? '지하 깊은 곳 냉각 관찰' : '지표 부근 냉각 관찰';
-      els.coolingSubtitle.textContent = mode === 'compare' ? '성분은 같게 유지했습니다. 결정 알갱이가 변하는 모습을 관찰하세요.' : '처음에는 녹아 있는 물질입니다. 냉각하면서 결정이 어떻게 나타나는지 관찰하세요.';
-      els.coolingNote.textContent = '관찰 시간을 줄여 보여 주는 확대 모형입니다. 알갱이 하나의 크기에 주목하세요.';
-      const scene = setupScene(mode);
-      const deepDuration = 9000;
-      const fastDelay = mode === 'compare' ? 0 : 850;
-      const fastDuration = 1050;
-      const finish = () => {
-        if (sessionId !== activeSession) return;
-        els.coolingStatus.textContent = '관찰 완료';
-        scene.deepMold.dataset.label = '굳은 암석';
-        scene.surfaceMold.dataset.label = '굳은 암석';
-        if (mode === 'compare') {
-          if (firstComparison && inquiry.finish()) showInquiryStep();
-          else {
-            reflectComparisonResults(run);
-            els.coolingSubtitle.textContent = '두 암석의 이름과 결정 크기를 비교하고, 사진도 확인해 보세요.';
-          }
-        } else {
-          reflectRockResult(run);
-          els.coolingNote.textContent = run.rocks[run.location].explain;
-        }
-      };
-      if (mode === 'slow') {
-        animateSolidification(scene.deepMold, deepDuration, sessionId);
-        spawnGrowingNuclei(scene.deepMold, sessionId, deepDuration);
-        animateBar(els.bar1Fill, els.bar1Text, deepDuration, sessionId).then(finish);
-      } else if (mode === 'fast') {
-        setTimeout(() => { if (sessionId === activeSession) scene.eruption.classList.add('flow'); }, 100);
-        setTimeout(() => { if (sessionId === activeSession) scene.lava.classList.add('flow'); }, 520);
-        animateSolidification(scene.surfaceMold, fastDuration, sessionId, fastDelay);
-        spawnFastGrains(scene.surfaceMold, fastDuration, sessionId, fastDelay);
-        animateBar(els.bar1Fill, els.bar1Text, fastDuration, sessionId, fastDelay).then(finish);
-      } else {
-        animateSolidification(scene.deepMold, deepDuration, sessionId);
-        animateSolidification(scene.surfaceMold, fastDuration, sessionId);
-        spawnGrowingNuclei(scene.deepMold, sessionId, deepDuration);
-        spawnFastGrains(scene.surfaceMold, fastDuration, sessionId);
-        Promise.all([
-          animateBar(els.bar1Fill, els.bar1Text, deepDuration, sessionId),
-          animateBar(els.bar2Fill, els.bar2Text, fastDuration, sessionId)
-        ]).then(finish);
-      }
     }
 
     function resetAll() {
       closeCoolingOverlay();
+      observation.resetPrediction();
       bright = 50;
       locationType = "deep";
       document.querySelectorAll(".location").forEach(btn => {
@@ -2837,13 +2432,21 @@
       showTip("<strong>다시 시작!</strong> 비커는 마그마 성분을 바꿔 보는 가상 도구예요.");
     }
 
+    const observation = IgneousObservation.createLab({
+      els, rockTable, rockImages,
+      getConditions: () => ({ bright, location: locationType }),
+      resetResultText,
+      onComplete: run => run.mode === 'compare' ? reflectComparisonResults(run) : reflectRockResult(run),
+      openPhotoModal, hideTip, showTip
+    });
+
     els.brightBtn.addEventListener("pointerdown", startBeakerDrag);
     els.darkBtn.addEventListener("pointerdown", startBeakerDrag);
     document.querySelectorAll(".location").forEach(btn => {
       btn.addEventListener("click", () => setLocation(btn.dataset.location));
     });
-    els.startCoolingBtn.addEventListener("click", () => showPopup(locationType === "deep" ? "slow" : "fast"));
-    els.compareBtn.addEventListener("click", requestComparison);
+    els.startCoolingBtn.addEventListener("click", () => observation.start(locationType === "deep" ? "slow" : "fast"));
+    els.compareBtn.addEventListener("click", () => observation.start("compare"));
     els.resetBtn.addEventListener("click", resetAll);
     els.pairInfoBtn.addEventListener("click", openPairModal);
     els.closeCoolingBtn.addEventListener("click", closeCoolingOverlay);
@@ -2875,9 +2478,9 @@
     });
     window.addEventListener("keydown", event => {
       if (event.key === 'Tab') {
-        const modal = [els.photoModal, els.pairModal, els.coolingOverlay].find(item => item.classList.contains('show'));
+        const modal = [els.photoModal, els.pairModal, els.coolingOverlay, document.getElementById("historyModal")].find(item => item.classList.contains('show'));
         if (modal) {
-          const controls = [...modal.querySelectorAll('button:not(:disabled), a[href], [tabindex="0"]')].filter(item => item.getClientRects().length);
+          const controls = [...modal.querySelectorAll('button:not(:disabled), input:not(:disabled), a[href], [tabindex="0"]')].filter(item => item.getClientRects().length);
           const first = controls[0], last = controls[controls.length - 1];
           if (first && (event.shiftKey && document.activeElement === first || !event.shiftKey && document.activeElement === last)) {
             event.preventDefault();
@@ -2899,7 +2502,7 @@
     updateUI();
     resetResultText();
     setTimeout(() => {
-      showTip("<strong>학습 안내</strong> 비커로 성분을 조절한 뒤 동시 비교를 눌러 보세요. 첫 비교에서는 예상과 관찰 결과를 함께 확인합니다.", 6800);
+      showTip("<strong>관찰 안내</strong> 냉각 중에는 일시정지와 재생 위치를 사용할 수 있습니다. 완료한 실험은 아래 기록에 남습니다.", 6800);
     }, 900);
   </script>
 </body>
