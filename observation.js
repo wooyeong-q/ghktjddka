@@ -2,6 +2,41 @@
   'use strict';
   root.IgneousObservation = { createLab };
 
+  let landscapeId = 0;
+  function landscapeMarkup() {
+    const id = 'landscape-' + ++landscapeId;
+    return `<svg class="landscape-art" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="${id}-sky" x2="0" y2="1"><stop stop-color="#81b6ce"/><stop offset="1" stop-color="#d7e7e6"/></linearGradient>
+        <linearGradient id="${id}-mountain" x2=".5" y2="1"><stop stop-color="#9b8c7c"/><stop offset=".55" stop-color="#696254"/><stop offset="1" stop-color="#4a5149"/></linearGradient>
+        <linearGradient id="${id}-earth" x2="0" y2="1"><stop stop-color="#5c5146"/><stop offset=".45" stop-color="#3c3f42"/><stop offset="1" stop-color="#202b35"/></linearGradient>
+        <linearGradient id="${id}-magma" x2="0" y2="1"><stop stop-color="#ffdb87"/><stop offset=".45" stop-color="#ff974f"/><stop offset="1" stop-color="#bf553c"/></linearGradient>
+      </defs>
+      <path fill="url(#${id}-sky)" d="M0 0H1000V252H0Z"/>
+      <path fill="#a4bfbe" opacity=".7" d="M0 232Q80 177 168 227T329 216T548 221T781 207T1000 226V260H0Z"/>
+      <path fill="url(#${id}-earth)" d="M0 252H1000V600H0Z"/>
+      <path fill="#827465" opacity=".42" d="M0 252H1000V311Q822 296 658 317T345 307T0 317Z"/>
+      <path fill="#252f38" opacity=".42" d="M0 407Q220 431 435 413T1000 430V600H0Z"/>
+      <g fill="none" stroke="#b7a38d" stroke-width="2" opacity=".17">
+        <path d="M0 334Q178 319 349 342T705 329T1000 340"/><path d="M0 474Q164 458 333 481T676 468T1000 480"/>
+        <path d="M0 550Q191 531 349 554T712 542T1000 548"/><path d="M131 316l36 44-19 28m561-71-22 31 34 39m168 93-42 21 12 50"/>
+      </g>
+      <path fill="url(#${id}-mountain)" d="M109 252C178 244 244 190 291 157L373 106H427C456 134 492 174 548 206C594 232 645 242 695 252Z"/>
+      <path fill="#4f514a" opacity=".48" d="M400 111L427 106C456 134 492 174 548 206C594 232 645 242 695 252H453C441 219 422 169 400 111Z"/>
+      <g fill="none" stroke="#d1c3ac" stroke-width="3" opacity=".25"><path d="M356 128Q315 165 273 203l-45 25"/><path d="M382 121l-33 82-28 29"/><path d="M447 143l44 58 42 33"/></g>
+      <path stroke="#a1aa85" stroke-width="6" fill="none" d="M0 252H1000"/>
+      <path stroke="url(#${id}-magma)" stroke-width="14" stroke-linecap="round" d="M400 111V448"/>
+      <ellipse cx="400" cy="109" rx="34" ry="8" fill="#303a38"/><ellipse cx="400" cy="109" rx="19" ry="4" fill="#f6ba6a"/>
+      <g fill="#edf2ed" opacity=".5"><ellipse cx="408" cy="75" rx="28" ry="18"/><ellipse cx="440" cy="58" rx="34" ry="21"/><ellipse cx="476" cy="43" rx="37" ry="17"/></g>
+    </svg>`;
+  }
+
+  function locationIllustration(place) {
+    return `<div class="location-scene" data-place="${place}" aria-hidden="true">${landscapeMarkup()}
+      <span class="scene-ground-label">지표</span><span class="scene-depth-label">지하</span>
+      <span class="scene-point ${place}">${place === 'surface' ? '1' : '2'}</span></div>`;
+  }
+
   function createLab(context) {
     const { els, rockTable, getConditions, resetResultText, onComplete, openPhotoModal, hideTip, showTip } = context;
     const core = root.IgneousObservationCore;
@@ -12,7 +47,6 @@
     const timeInput = document.getElementById('playbackTime');
     const timeText = document.getElementById('playbackPosition');
     const nextBtn = document.getElementById('nextExperiment');
-    const predictionNote = document.getElementById('predictionRecord');
     const historyList = document.getElementById('historyList');
     const historyCount = document.getElementById('historyCount');
     const compareHistoryBtn = document.getElementById('compareHistoryBtn');
@@ -20,14 +54,12 @@
     const historyGrid = document.getElementById('historyCompareGrid');
     const historySubtitle = document.getElementById('historyCompareSubtitle');
     const closeHistoryBtn = document.getElementById('closeHistoryBtn');
-    const labels = { deep: '지하 깊은 곳', surface: '지표 부근', same: '두 곳이 비슷함' };
     const storageKey = 'igneous-observations-v1';
     let stored = [];
     try { stored = JSON.parse(localStorage.getItem(storageKey) || '[]'); } catch (_) { /* In-memory records remain available. */ }
     const history = core.createHistory(12, stored);
     let selectedRecords = history.list().slice(-2).map(record => record.id);
     let number = Math.max(0, ...history.list().map(record => record.number));
-    let prediction = null;
     let run = null;
     let timeline = null;
     let views = [];
@@ -39,9 +71,13 @@
     let recorded = false;
     let finishing = false;
 
-    const locationName = place => place === 'deep' ? '지하 깊은 곳' : '지표 부근 · 분출 후';
+    const locationName = place => place === 'deep' ? '지하 깊은 곳' : '지표 부근';
     const categoryFor = bright => bright >= 65 ? 'bright' : bright <= 35 ? 'dark' : 'middle';
     const seedNow = () => Math.floor(Math.random() * 4294967296);
+    els.stage.insertAdjacentHTML('afterbegin', landscapeMarkup());
+    document.querySelectorAll('[data-location]').forEach(button => {
+      button.insertAdjacentHTML('afterbegin', locationIllustration(button.dataset.location));
+    });
     function compositionMarkup(experiment) {
       return `<div class="composition-display" aria-label="밝은 성분 ${experiment.bright}%, 어두운 성분 ${experiment.dark}%">
         <div class="composition-numbers"><span class="composition-bright">밝은 성분 <strong>${experiment.bright}<small>%</small></strong></span><span class="composition-dark">어두운 성분 <strong>${experiment.dark}<small>%</small></strong></span></div>
@@ -115,11 +151,10 @@
       map.className = 'geology-map';
       map.setAttribute('aria-label', '화산과 지하 깊은 곳의 단면');
       map.innerHTML = `<div class="geology-map-head"><div class="geology-composition-title"><strong>마그마 성분</strong><span>${experiment.mode === 'compare' ? '두 장소에 같은 성분' : '이번 실험의 성분'}</span></div>${compositionMarkup(experiment)}</div>
-        <div class="geology-canvas"><div class="geology-ground"></div><div class="geology-depth"><span>깊어짐</span></div>
-          <span class="geology-layer surface-layer">지표</span><span class="geology-layer deep-layer">지하 깊은 곳</span>
-          <div class="geology-volcano"><div class="smoke"></div><div class="cone-back"></div><div class="cone-front"></div><div class="crater"></div><span class="geology-volcano-label">화산</span></div>
-          <div class="geology-conduit"></div>
-          <svg class="geology-lava" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M40 16 C46 20 55 28 63 35 S72 41 79 41" /></svg>
+        <div class="geology-canvas">${landscapeMarkup()}<div class="geology-depth"><span>깊어짐</span></div>
+          <span class="geology-layer surface-layer">지표</span><span class="geology-layer deep-layer">지하</span>
+          <span class="geology-volcano-label">화산</span>
+          <svg class="geology-lava" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M400 109C450 141 507 188 561 214S720 250 790 250" /></svg>
         </div>`;
       const canvas = map.querySelector('.geology-canvas');
       if (experiment.mode === 'fast') {
@@ -127,7 +162,7 @@
         origin.className = 'geology-origin';
         origin.setAttribute('role', 'img');
         origin.setAttribute('aria-label', '지하 깊은 곳의 마그마에서 용암이 분출합니다');
-        origin.innerHTML = '<div class="geology-site-label"><strong>지하 깊은 곳</strong><span class="geology-site-state">마그마</span></div>';
+        origin.innerHTML = '<div class="geology-site-label"><strong><span class="place-number">2</span> 지하 깊은 곳</strong><span class="geology-site-state">마그마</span></div>';
         canvas.appendChild(origin);
       }
       geologyFlow = experiment.mode === 'slow' ? null : map.querySelector('.geology-lava path');
@@ -137,7 +172,8 @@
       views = core.placesFor(experiment.mode).map(place => {
         const card = document.createElement('article');
         card.className = 'observation-card';
-        card.innerHTML = `<div class="observation-card-head"><div><span class="location-caption">결정 확대 관찰</span><h3>${locationName(place)}</h3></div></div>
+        card.dataset.place = place;
+        card.innerHTML = `<div class="observation-card-head"><span class="place-number">${place === 'surface' ? '1' : '2'}</span><div><span class="location-caption">이 위치의 결정 확대</span><h3>${locationName(place)}</h3></div></div>
           <div class="observation-sample-area"><span class="sample-label">같은 크기로 확대한 모형</span></div>
           <div class="observation-card-foot"><strong class="growth-state">냉각 시작</strong><button type="button" class="sample-photo" hidden>실제 암석 사진</button></div>`;
         const view = makeSpecimen(place, experiment);
@@ -148,7 +184,7 @@
         const siteView = makeSpecimen(place, experiment);
         siteView.mold.classList.add('geology-rock');
         siteView.mold.id = place + 'Mold';
-        site.innerHTML = `<div class="geology-site-label"><strong>${place === 'deep' ? '지하 깊은 곳' : '지표 부근'}</strong><span class="geology-site-state">${place === 'deep' ? '마그마' : '분출한 용암'}</span></div>`;
+        site.innerHTML = `<div class="geology-site-label"><strong><span class="place-number">${place === 'surface' ? '1' : '2'}</span> ${locationName(place)}</strong><span class="geology-site-state">${place === 'deep' ? '마그마' : '분출한 용암'}</span></div>`;
         site.prepend(siteView.mold);
         canvas.appendChild(site);
         view.site = siteView;
@@ -218,8 +254,6 @@
       els.bar2Fill.style.width = Math.round(surfaceProgress * 100) + '%';
       els.bar2Text.textContent = Math.round(surfaceProgress * 100) + '%';
       nextBtn.hidden = !state.complete;
-      predictionNote.hidden = run.mode !== 'compare' || !run.prediction;
-      predictionNote.textContent = run.prediction ? `내 예상: ${labels[run.prediction]}${state.complete ? ' · 관찰: 지하 쪽 결정이 더 큼' : ''}` : '';
       if (run.mode === 'compare' && surfaceProgress === 1 && firstProgress < 1) {
         els.coolingNote.textContent = '지표 쪽은 냉각이 끝났습니다. 지하 마그마와 오른쪽 확대 모형에서 결정이 계속 자라는지 관찰하세요.';
       } else if (state.complete) {
@@ -253,7 +287,7 @@
       const conditions = getConditions();
       const seed = savedRecord ? savedRecord.seed : seedNow();
       run = hydrate(savedRecord || { id: Date.now().toString(36) + '-' + seed.toString(36), number: number + 1,
-        mode, bright: conditions.bright, seed, prediction: mode === 'compare' ? prediction : null });
+        mode, bright: conditions.bright, seed });
       recorded = Boolean(savedRecord);
       finishing = false;
       timeline = core.createTimeline(run.mode);
@@ -309,15 +343,6 @@
       if (document.hidden && timeline?.state().playing) { timeline.pause(); stopFrame(); renderPlayback(); }
     });
 
-    function resetPrediction() {
-      prediction = null;
-      document.querySelectorAll('[data-prediction]').forEach(button => button.setAttribute('aria-pressed', 'false'));
-    }
-    document.querySelectorAll('[data-prediction]').forEach(button => button.addEventListener('click', () => {
-      prediction = prediction === button.dataset.prediction ? null : button.dataset.prediction;
-      document.querySelectorAll('[data-prediction]').forEach(choice => choice.setAttribute('aria-pressed', String(choice.dataset.prediction === prediction)));
-    }));
-
     function renderHistory() {
       const records = history.list();
       historyCount.textContent = records.length ? `${records.length}회 · 최근 12회 보관` : '0회';
@@ -335,7 +360,7 @@
         card.className = 'history-card';
         card.innerHTML = `<div class="history-card-top"><strong>실험 ${record.number}</strong><label><input type="checkbox" ${selectedRecords.includes(record.id) ? 'checked' : ''} aria-label="실험 ${record.number} 비교 선택"> 비교 선택</label></div>
           <p>밝은 ${experiment.bright}% · 어두운 ${experiment.dark}%</p>
-          <div class="record-rocks">${core.placesFor(record.mode).map(place => `<span><small>${place === 'deep' ? '지하' : '지표'}</small> ${experiment.rocks[place].name}</span>`).join('')}</div>
+          <div class="record-rocks">${core.placesFor(record.mode).map(place => `<span data-place="${place}"><small>${place === 'deep' ? '2 지하' : '1 지표'}</small> ${experiment.rocks[place].name}</span>`).join('')}</div>
           <button type="button" class="record-replay" aria-label="실험 ${record.number} 냉각 다시 보기">냉각 다시 보기</button>`;
         card.querySelector('input').addEventListener('change', event => {
           if (event.target.checked && selectedRecords.length === 2) {
@@ -365,8 +390,9 @@
           const experiment = hydrate(record);
           const card = document.createElement('article');
           card.className = 'history-compare-card' + (available ? '' : ' missing-result');
+          card.dataset.place = place;
           const rock = experiment.rocks[place];
-          card.innerHTML = `<div class="history-compare-card-head"><small>실험 ${record.number}</small><h3>${locationName(place)}${available ? ' · ' + rock.name : ''}</h3>${compositionMarkup(experiment)}</div><div class="history-model"></div>`;
+          card.innerHTML = `<div class="history-compare-card-head"><div class="history-place-heading">${locationIllustration(place)}<div><small class="record-id">실험 ${record.number}</small><p class="place-title"><span class="place-number">${place === 'surface' ? '1' : '2'}</span> ${locationName(place)}</p><h3>${available ? rock.name : '관찰 기록 없음'}</h3></div></div>${compositionMarkup(experiment)}</div><div class="history-model"><span class="model-caption">결정 확대</span></div>`;
           if (available) {
             const view = makeSpecimen(place, experiment, true);
             view.mold.setAttribute('aria-label', `${locationName(place)}: ${rock.name}, ${rock.texture}`);
@@ -399,6 +425,6 @@
       if (event.key === 'Escape' && historyModal.classList.contains('show') && !els.photoModal.classList.contains('show')) closeHistory();
     });
     renderHistory();
-    return { start, close, resetPrediction };
+    return { start, close };
   }
 })(typeof globalThis === 'object' ? globalThis : this);

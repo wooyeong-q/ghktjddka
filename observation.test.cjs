@@ -43,7 +43,7 @@ test('history snapshots stay immutable, replays do not duplicate them, and recen
   assert.equal(history.add(record), true);
   record.bright = 30;
   assert.equal(history.list()[0].bright, 66);
-  assert.equal(history.list()[0].prediction, 'surface');
+  assert.equal(history.list()[0].prediction, undefined);
   assert.equal(history.add(record), false);
   assert.equal(history.add({ ...record, id: 'run-2', number: 2 }), true);
   assert.equal(history.add({ ...record, id: 'run-3', number: 3 }), true);
@@ -56,7 +56,7 @@ test('restored records reject corrupt data and unsafe text; no prediction is req
   const good = { id: 'run-1', number: 1, bright: 50, mode: 'slow', seed: 44 };
   const history = createHistory(12, [null, { ...good, id: '<img>' }, { ...good, bright: '50' }, good, good]);
   assert.equal(history.list().length, 1);
-  assert.equal(history.list()[0].prediction, null);
+  assert.equal(history.list()[0].prediction, undefined);
   assert.equal(history.add({ ...good, id: 'run-2', mode: 'invalid' }), false);
   assert.throws(() => createTimeline('invalid'), RangeError);
   assert.throws(() => createTimeline('slow').seek(NaN), RangeError);

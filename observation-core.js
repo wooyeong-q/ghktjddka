@@ -6,7 +6,6 @@
   'use strict';
   const DURATIONS = Object.freeze({ deep: 12000, surface: 2400 });
   const MODES = ['slow', 'fast', 'compare'];
-  const PREDICTIONS = ['deep', 'surface', 'same'];
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
   const placesFor = mode => mode === 'compare' ? ['deep', 'surface'] : [mode === 'slow' ? 'deep' : 'surface'];
 
@@ -92,7 +91,7 @@
       || typeof value.id !== 'string' || !/^[a-zA-Z0-9-]{1,80}$/.test(value.id)
       || !Number.isSafeInteger(value.number) || value.number < 1) return null;
     return Object.freeze({ id: value.id, number: value.number, mode: value.mode, bright: value.bright,
-      seed: value.seed, prediction: PREDICTIONS.includes(value.prediction) ? value.prediction : null });
+      seed: value.seed });
   }
 
   function createHistory(limit = 12, initial = []) {

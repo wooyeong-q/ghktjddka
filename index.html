@@ -1689,15 +1689,15 @@
   </style>
   <link rel="stylesheet" href="./responsive-safe.css?v=20260716-1" />
   <link rel="stylesheet" href="./popup-mobile-fix.css?v=20260716-2" />
-  <link rel="stylesheet" href="./observation.css?v=20261014-4" />
-  <script src="./observation-core.js?v=20261014-4"></script>
-  <script src="./observation.js?v=20261014-4"></script>
+  <link rel="stylesheet" href="./observation.css?v=20261014-5" />
+  <script src="./observation-core.js?v=20261014-5"></script>
+  <script src="./observation.js?v=20261014-5"></script>
 </head>
 <body>
   <main class="app">
     <header>
       <div>
-        <span class="badge">🌋 화성암 생성과정</span>
+        <span class="badge">지권의 변화 · 가상실험</span>
         <h1>화성암 생성과정</h1>
         <p class="lead">
           비커로 성분을 조절하고 냉각 과정을 관찰하세요. 원하는 순간에 멈추고, 여러 실험의 결과를 비교할 수 있습니다.
@@ -1711,17 +1711,17 @@
     <section class="main">
       <aside class="panel left">
         <div class="box">
-          <h2>🥼 1. 마그마 성분 비커</h2>
+          <h2><span class="step-number">01</span> 마그마 성분</h2>
           <div class="beakers">
             <button class="beaker-card" id="brightBtn" data-type="bright" style="--liquid:#fde68a" type="button">
               <div class="beaker-label">밝은 광물 성분</div>
-              <div class="beaker-desc">석영·장석(연분홍 느낌) 계열이 많은 느낌</div>
+              <div class="beaker-desc">석영·장석 등</div>
               <div class="beaker"><div class="liquid"></div></div>
             </button>
 
             <button class="beaker-card" id="darkBtn" data-type="dark" style="--liquid:#334155" type="button">
               <div class="beaker-label">어두운 광물 성분</div>
-              <div class="beaker-desc">흑운모·휘석·감람석 계열 느낌</div>
+              <div class="beaker-desc">흑운모·휘석·감람석 등</div>
               <div class="beaker"><div class="liquid"></div></div>
             </button>
           </div>
@@ -1741,28 +1741,16 @@
         </div>
 
         <div class="box">
-          <h2>📍 2. 마그마가 식는 위치</h2>
+          <h2><span class="step-number">02</span> 마그마가 식는 위치</h2>
           <div class="location-grid">
-            <button class="location active" data-location="deep" type="button">
-              🕳️
-              <strong>깊은 곳</strong>
+            <button class="location active" data-location="deep" type="button" aria-pressed="true">
+              <strong><span class="place-number">2</span> 지하 깊은 곳</strong>
               <small>마그마가 지하에서 식음</small>
             </button>
-            <button class="location" data-location="surface" type="button">
-              🌋
-              <strong>지표 부근</strong>
+            <button class="location" data-location="surface" type="button" aria-pressed="false">
+              <strong><span class="place-number">1</span> 지표 부근</strong>
               <small>분출한 용암이 지표에서 식음</small>
             </button>
-          </div>
-        </div>
-
-        <div class="box prediction-box">
-          <h2>내 예상 <small>선택 사항</small></h2>
-          <p>같은 성분이면 어느 쪽 결정이 더 클까요?</p>
-          <div class="prediction-choices" role="group" aria-label="같은 성분에서 결정 크기 예상">
-            <button type="button" data-prediction="deep" aria-pressed="false">지하</button>
-            <button type="button" data-prediction="surface" aria-pressed="false">지표</button>
-            <button type="button" data-prediction="same" aria-pressed="false">비슷함</button>
           </div>
         </div>
 
@@ -1779,22 +1767,13 @@
 
       <section class="panel lab">
         <div class="stage" id="stage">
-          <div class="sky-glow"></div>
-          <div class="ground"></div>
           <div class="depth-arrow"></div>
           <div class="layer-label label-surface">지표</div>
-          <div class="layer-label label-deep">지하 깊은 곳</div>
-
-          <div class="volcano">
-            <div class="smoke"></div>
-            <div class="cone-back"></div>
-            <div class="conduit"></div>
-            <div class="cone-front"></div>
-            <div class="crater"></div>
-          </div>
-
-          <div class="cooling-marker surface" id="surfaceMarker">지표 부근 · 분출 후</div>
-          <div class="cooling-marker deep active" id="deepMarker">지하 깊은 곳</div>
+          <div class="layer-label label-deep">지하</div>
+          <div class="stage-caption">화산과 지하 단면<span>비커를 마그마방으로 가져가 성분을 조절하세요</span></div>
+          <div class="stage-surface-site" aria-hidden="true"></div>
+          <div class="cooling-marker surface" id="surfaceMarker"><strong><span class="place-number">1</span> 지표 부근</strong><small>분출한 용암이 식는 곳</small></div>
+          <div class="cooling-marker deep active" id="deepMarker"><strong><span class="place-number">2</span> 지하 깊은 곳</strong><small>마그마가 머물며 식는 곳</small></div>
           <div class="mix-label" id="mixLabel">마그마 성분: 밝은 50% · 어두운 50%</div>
           <div class="magma-chamber" id="magmaChamber"></div>
         </div>
@@ -1866,7 +1845,7 @@
           <div class="bar"><div class="bar-fill" id="bar2Fill"></div></div>
           <span id="bar2Text">0%</span>
         </div>
-        <div class="observation-notes"><p id="predictionRecord" hidden></p><p class="foot-note" id="coolingNote">결정이 생기고 자라는 과정을 관찰합니다.</p><small id="coolingModelNote"></small></div>
+        <div class="observation-notes"><p class="foot-note" id="coolingNote">결정이 생기고 자라는 과정을 관찰합니다.</p><small id="coolingModelNote"></small></div>
       </div>
     </div>
   </div>
@@ -2138,6 +2117,7 @@
 
       els.deepMarker.classList.toggle("active", locationType === "deep");
       els.surfaceMarker.classList.toggle("active", locationType === "surface");
+      els.stage.dataset.place = locationType;
 
       els.facts.innerHTML = `
         <span class="fact">밝은 ${bright}%</span>
@@ -2287,7 +2267,10 @@
 
     function setLocation(type) {
       locationType = type;
-      document.querySelectorAll('.location').forEach(btn => btn.classList.toggle('active', btn.dataset.location === type));
+      document.querySelectorAll('.location').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.location === type);
+        btn.setAttribute('aria-pressed', String(btn.dataset.location === type));
+      });
       els.statusText.textContent = type === 'deep' ? '지하 깊은 곳 선택' : '지표 부근 선택';
       showTip(type === 'surface'
         ? '<strong>용어 확인!</strong> 지하에서는 마그마, 지표 밖으로 나온 뒤에는 용암이라고 불러요.'
@@ -2412,7 +2395,7 @@
       comparisonResults.innerHTML = ['deep', 'surface'].map(place => {
         const rock = run.rocks[place];
         const location = place === 'deep' ? '지하 깊은 곳 · 느린 냉각' : '지표 부근 · 빠른 냉각';
-        return `<article class="summary-rock"><button type="button" class="summary-photo" data-photo-rock="${rock.name}" aria-label="${rock.name} 실제 암석 사진 확대"><img src="${rockImages[rock.name]}" alt="${rock.name} 실제 암석 사진"></button>
+        return `<article class="summary-rock" data-place="${place}"><button type="button" class="summary-photo" data-photo-rock="${rock.name}" aria-label="${rock.name} 실제 암석 사진 확대"><img src="${rockImages[rock.name]}" alt="${rock.name} 실제 암석 사진"></button>
           <div><small>${location}</small><strong>${rock.name}</strong><small>${rock.type} · ${rock.texture}</small><p>대표 광물: ${rock.minerals}</p></div></article>`;
       }).join('');
       comparisonResults.querySelectorAll('[data-photo-rock]').forEach(button => button.addEventListener('click', () => openPhotoModal(button.dataset.photoRock)));
@@ -2420,11 +2403,11 @@
 
     function resetAll() {
       closeCoolingOverlay();
-      observation.resetPrediction();
       bright = 50;
       locationType = "deep";
       document.querySelectorAll(".location").forEach(btn => {
         btn.classList.toggle("active", btn.dataset.location === "deep");
+        btn.setAttribute('aria-pressed', String(btn.dataset.location === 'deep'));
       });
       resetResultText();
       els.statusText.textContent = "비커를 지하 깊은 마그마방에 부어 보세요";
