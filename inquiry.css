@@ -44,7 +44,7 @@
 .inquiry-conclusion strong { color: #86efac; }
 .inquiry-done { justify-self: start; min-height: 42px; padding: 8px 18px; border: 1px solid #6ee7b7; border-radius: 12px; color: #eafff4; background: #174c43; font-weight: 850; cursor: pointer; }
 .cooling-window.prediction-mode { grid-template-rows: auto minmax(0, 1fr) !important; }
-.compare-mode .mode-progress { max-height: 48%; overflow-y: auto; }
+.compare-mode .mode-progress { max-height: none; overflow: visible; }
 .photo-modal-card { height: min(800px, 94dvh); max-height: 94dvh; }
 .photo-modal-body { position: relative; overflow: auto; display: block; padding: 12px; }
 .photo-modal-body img { width: 100%; height: 100%; max-width: 100%; max-height: 100%; border-radius: 12px; object-fit: contain; transform: scale(var(--photo-zoom, 1)); transform-origin: center; background: transparent; box-shadow: none; }
@@ -89,7 +89,7 @@ button:focus-visible, [role="button"]:focus-visible { outline: 3px solid #7dd3fc
   .inquiry-panel h3 { font-size: 15px; }
   .inquiry-panel .inquiry-feedback { min-height: 0; }
   .inquiry-conclusion { font-size: 11px; line-height: 1.5; }
-  .compare-mode .mode-progress { max-height: 53%; }
+  .compare-mode .mode-progress { max-height: none; }
   .comparison-card-head { padding: 5px 9px; }
   .comparison-card-head h3 { font-size: 16px; }
   .comparison-card-foot { min-height: 28px; padding: 5px 9px; }

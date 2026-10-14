@@ -1689,7 +1689,7 @@
   </style>
   <link rel="stylesheet" href="./responsive-safe.css?v=20260716-1" />
   <link rel="stylesheet" href="./popup-mobile-fix.css?v=20260716-2" />
-  <link rel="stylesheet" href="./inquiry.css?v=20261014-1" />
+  <link rel="stylesheet" href="./inquiry.css?v=20261014-2" />
   <script src="./inquiry-core.js?v=20261014-1"></script>
 </head>
 <body>
@@ -2874,6 +2874,17 @@
       if (event.target === els.pairModal) closePairModal();
     });
     window.addEventListener("keydown", event => {
+      if (event.key === 'Tab') {
+        const modal = [els.photoModal, els.pairModal, els.coolingOverlay].find(item => item.classList.contains('show'));
+        if (modal) {
+          const controls = [...modal.querySelectorAll('button:not(:disabled), a[href], [tabindex="0"]')].filter(item => item.getClientRects().length);
+          const first = controls[0], last = controls[controls.length - 1];
+          if (first && (event.shiftKey && document.activeElement === first || !event.shiftKey && document.activeElement === last)) {
+            event.preventDefault();
+            (event.shiftKey ? last : first).focus();
+          }
+        }
+      }
       if (event.key === "Escape") {
         if (els.photoModal.classList.contains('show')) closePhotoModal();
         else if (els.pairModal.classList.contains('show')) closePairModal();
