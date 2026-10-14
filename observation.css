@@ -134,6 +134,7 @@ button:focus-visible, input:focus-visible, [role="button"]:focus-visible { outli
 .geology-lava path { fill: none; stroke: #ff8b29; stroke-width: 2; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; }
 .geology-site { position: absolute; z-index: 19; }
 .geology-site.deep { left: 40%; top: 75%; width: min(28cqw, 30cqh, 210px); transform: translate(-50%, -50%); }
+.geology-origin { position: absolute; z-index: 18; left: 40%; top: 75%; width: min(28cqw, 30cqh, 210px); aspect-ratio: 1.6; transform: translate(-50%, -50%); border-radius: 50%; border: 2px solid #fc9a5399; background: radial-gradient(ellipse at 35% 25%, #ffb566, #f97316 50%, #9c2525); }
 .geology-site.surface { left: 79%; top: 42%; width: min(25cqw, 32cqh, 180px); transform: translate(-50%, -100%); }
 .geology-site .geology-rock { display: block; width: 100% !important; height: auto !important; position: relative !important; top: auto !important; left: auto !important; bottom: auto !important; transform: none !important; }
 .geology-site-label { position: absolute; left: 50%; top: calc(100% + 6px); min-width: 122px; transform: translateX(-50%); text-align: center; border: 1px solid #7ad1e7; border-radius: 9px; padding: 5px 9px; background: #10243beF; box-shadow: 0 3px 12px #02101c66; }

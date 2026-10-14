@@ -122,6 +122,14 @@
           <svg class="geology-lava" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M40 16 C46 20 55 28 63 35 S72 41 79 41" /></svg>
         </div>`;
       const canvas = map.querySelector('.geology-canvas');
+      if (experiment.mode === 'fast') {
+        const origin = document.createElement('div');
+        origin.className = 'geology-origin';
+        origin.setAttribute('role', 'img');
+        origin.setAttribute('aria-label', '지하 깊은 곳의 마그마에서 용암이 분출합니다');
+        origin.innerHTML = '<div class="geology-site-label"><strong>지하 깊은 곳</strong><span class="geology-site-state">마그마</span></div>';
+        canvas.appendChild(origin);
+      }
       geologyFlow = experiment.mode === 'slow' ? null : map.querySelector('.geology-lava path');
       map.querySelector('.geology-lava').toggleAttribute('hidden', experiment.mode === 'slow');
       const grid = document.createElement('div');
