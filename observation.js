@@ -10,7 +10,7 @@
         <linearGradient id="${id}-sky" x2="0" y2="1"><stop stop-color="#81b6ce"/><stop offset="1" stop-color="#d7e7e6"/></linearGradient>
         <linearGradient id="${id}-mountain" x2=".5" y2="1"><stop stop-color="#9b8c7c"/><stop offset=".55" stop-color="#696254"/><stop offset="1" stop-color="#4a5149"/></linearGradient>
         <linearGradient id="${id}-earth" x2="0" y2="1"><stop stop-color="#5c5146"/><stop offset=".45" stop-color="#3c3f42"/><stop offset="1" stop-color="#202b35"/></linearGradient>
-        <linearGradient id="${id}-magma" x2="0" y2="1"><stop stop-color="#ffdb87"/><stop offset=".45" stop-color="#ff974f"/><stop offset="1" stop-color="#bf553c"/></linearGradient>
+        <linearGradient id="${id}-magma" gradientUnits="userSpaceOnUse" x1="400" y1="111" x2="400" y2="448"><stop stop-color="#ffdb87"/><stop offset=".45" stop-color="#ff974f"/><stop offset="1" stop-color="#bf553c"/></linearGradient>
       </defs>
       <path fill="url(#${id}-sky)" d="M0 0H1000V252H0Z"/>
       <path fill="#a4bfbe" opacity=".7" d="M0 232Q80 177 168 227T329 216T548 221T781 207T1000 226V260H0Z"/>

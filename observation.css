@@ -383,16 +383,16 @@ body { background: #0c1621; }
 .history-compare-card[data-place] { border-color: var(--place-border); border-radius: 13px; }
 .history-compare-card-head { background: linear-gradient(115deg, var(--place-tint), #172e3c); padding: 10px 13px; }
 .history-place-heading { display: flex; align-items: center; gap: 13px; }
-.history-place-heading > .location-scene { width: 112px; height: 77px; flex: 0 0 auto; }
+.history-place-heading > .location-scene { width: 112px; height: 68px; flex: 0 0 auto; }
 .history-place-heading > div:last-child { min-width: 0; }
 .history-place-heading .record-id { font-size: 11px; color: #aac3ce; }
 .history-place-heading .place-title { font-size: 18px; font-weight: 800; color: var(--place-accent); margin: 4px 0 0; white-space: nowrap; }
 .history-place-heading .place-number { width: 20px; height: 20px; font-size: 11px; }
 .history-compare-card-head h3 { font-size: 24px; line-height: 1.2; margin: 5px 0 0; color: #f2f5ed; }
-.history-compare-card-head .composition-display { margin-top: 5px; padding-top: 6px; }
+.history-compare-card-head .composition-display { margin-top: 0; padding-top: 6px; }
 .history-model { position: relative; }
 .model-caption { position: absolute; top: 9px; left: 13px; color: #a3bbc7; font-size: 10px; }
-.history-model .observation-rock { width: min(90cqw, calc((100cqh - 24px) * 1.6), 390px) !important; }
+.history-model .observation-rock { width: min(92cqw, 150cqh, 390px) !important; }
 .history-compare-card-foot { background: #172e3d; }
 .history-compare-card-foot > span { font-size: 12px; }
 
