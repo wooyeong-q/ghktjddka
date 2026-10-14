@@ -490,3 +490,163 @@ body { background: #0c1621; }
   button, .cooling-marker, .beaker-ghost { transition: none; }
   .magma-chamber.pouring::before, .magma-bubble { animation: none; }
 }
+
+/* Keep records available without taking height from the experiment. */
+.history-panel { position: relative; overflow: visible; padding: 6px 12px; max-height: none; z-index: 35; }
+.history-head { margin-bottom: 0; min-height: 38px; }
+.history-head h2 { font-size: 18px; }
+.history-head span { font-size: 14px; }
+.history-head .history-actions { display: flex; align-items: center; gap: 8px; }
+.history-head button { min-height: 38px; font-size: 15px; padding: 6px 12px; }
+.history-drawer { position: absolute; bottom: calc(100% + 8px); left: 0; right: 0; padding: 12px; border: 1px solid #6a8b9d; border-radius: 14px; background: #142d3d; box-shadow: 0 -10px 30px #020b1470; }
+.history-list { display: grid; grid-template-columns: repeat(var(--history-cols, 1), minmax(0, 1fr)); overflow: hidden; gap: 10px; padding-bottom: 0; }
+.history-card { min-width: 0; padding: 10px; }
+.history-card-top { font-size: 16px; }
+.history-card-top label { font-size: 13px; gap: 6px; }
+.history-card input { width: 18px; height: 18px; }
+.history-card p { font-size: 14px; margin: 8px 0; }
+.record-rocks { font-size: 15px; flex-wrap: wrap; }
+.record-rocks small { font-size: 12px; }
+.record-replay { font-size: 14px; min-height: 30px; }
+.history-pages { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 10px; }
+.history-pages button { min-height: 34px; border: 1px solid #638396; border-radius: 7px; background: #254555; color: #e3f2f5; padding: 4px 14px; font-size: 14px; cursor: pointer; }
+.history-pages button:disabled { opacity: .4; cursor: default; }
+.history-pages span { font-size: 14px; font-variant-numeric: tabular-nums; }
+.history-modal-card { grid-template-rows: auto auto minmax(0, 1fr) auto; }
+.history-compare-grid { grid-row: 3; grid-auto-rows: minmax(0, 1fr); overflow: hidden; }
+.history-model-note { grid-row: 4; }
+.history-place-tabs { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 8px 12px; border-bottom: 1px solid #3e5c6c; }
+.history-place-tabs button { display: flex; align-items: center; gap: 8px; padding: 7px 15px; min-height: 42px; border: 1px solid #587383; border-radius: 9px; background: #1c3443; color: #bcd0da; font-size: 17px; cursor: pointer; }
+.history-place-tabs button[aria-pressed="true"] { border-color: var(--place-accent); background: var(--place-tint); color: var(--place-accent); }
+.history-compare-card { min-height: 0; grid-template-rows: auto minmax(0, 1fr) auto; }
+
+@media (min-width: 901px) {
+  html, body { height: 100%; overflow: hidden; }
+  .app { height: 100dvh; min-height: 0; padding: 6px 0; gap: 8px; grid-template-rows: auto minmax(0, 1fr) auto; }
+  .app > header { min-height: 42px; }
+  .app > header h1 { margin: 0; font-size: 30px; }
+  .app > header .badge, .app > header .lead { display: none; }
+  .app > header .status { max-width: 310px; padding: 5px 10px; font-size: 12px; }
+  .app > header .status strong { margin-top: 2px; font-size: 15px; }
+  .main { min-height: 0; grid-template-columns: 320px minmax(0, 1fr); gap: 10px; }
+  .left { min-height: 0; max-height: none; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto; padding: 6px; gap: 6px; overflow: hidden; align-content: start; }
+  .left .box { padding: 8px; }
+  .left .box h2 { font-size: 18px; line-height: 1.3; margin-bottom: 6px; }
+  .step-number { width: 27px; height: 27px; font-size: 12px; }
+  .left .beaker-card { min-height: 80px; padding: 6px; }
+  .left .beaker-label { font-size: 16px; margin-bottom: 5px; line-height: 1.2; }
+  .left .beaker-desc { display: none; }
+  .left .beaker { width: 48px; height: 43px; border-width: 2px; }
+  .left .liquid { height: 29px; }
+  .left .percent-card { margin-top: 6px; gap: 4px; }
+  .left .meter-row { grid-template-columns: 78px minmax(0, 1fr) 64px; font-size: 16px; gap: 7px; }
+  .left .meter { height: 16px; }
+  #brightText, #darkText { font-size: 32px; line-height: 1.05; }
+  .left .location { min-height: 77px; padding: 6px; }
+  .left .location-scene { height: 31px; }
+  .left .location strong { font-size: 17px; line-height: 1.25; margin: 6px 0 0; }
+  .left .location strong .place-number { width: 22px; height: 22px; font-size: 12px; }
+  .left .location small { display: none; }
+  .left .action-stack { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  .left .action-row { grid-column: 1 / -1; gap: 6px; }
+  .left .primary, .left .secondary { min-height: 44px; padding: 7px; font-size: 17px; }
+  .left .action-stack > .secondary { font-size: 15px; }
+  .lab { grid-template-rows: minmax(0, 1fr) 130px; }
+  .lab:has(.rock-preview.ready), .lab:has(.result-panel.has-comparison) { grid-template-rows: minmax(0, 1fr) 180px; }
+  .lab .stage { min-height: 0; height: auto; }
+  .lab .result-panel { height: auto; min-height: 0; padding: 10px; grid-template-columns: 170px minmax(0, 1fr); overflow: hidden; }
+  .lab .result-text h2 { font-size: 23px; }
+  .lab .result-text p { font-size: 16px; line-height: 1.4; }
+  .lab .facts, .lab .real-rock-cta { display: none; }
+  .lab .rock-preview { height: 100%; min-height: 0; }
+  .result-panel.has-comparison { grid-template-columns: minmax(0, 1fr); }
+  .result-panel.has-comparison .result-text > p { display: none; }
+  .summary-rock { padding: 7px; }
+  .summary-rock strong { font-size: 24px; }
+  .summary-rock small { font-size: 14px; }
+  .summary-rock p { display: none; }
+  .summary-photo { height: 95px; }
+  .stage-caption { font-size: 21px; top: 12px; }
+  .stage-caption span { font-size: 14px; }
+  .stage .layer-label { font-size: 17px; padding: 4px 8px; }
+  .stage .label-deep { top: calc(42% + 10px); }
+  .stage .depth-arrow { top: calc(42% + 51px); bottom: 39px; }
+  .stage .depth-arrow::after { font-size: 14px; }
+  .stage .cooling-marker strong { font-size: 21px; }
+  .stage .cooling-marker small { font-size: 13px; margin-top: 2px; }
+  .stage .cooling-marker { padding: 5px 8px; }
+  .stage .cooling-marker.deep { left: 71%; top: 67%; }
+  .stage .cooling-marker.surface { top: calc(42% + 8px); }
+  .stage .mix-label { font-size: 15px; bottom: 7px; padding: 5px 9px; }
+  .stage .magma-chamber { width: min(32cqw, 52cqh, 300px); }
+  .stage .magma-chamber::after { font-size: 14px; }
+  .cooling-overlay { padding: 6px; }
+  .cooling-window.observation-window { width: calc(100vw - 12px); height: calc(100dvh - 12px); max-height: none; border-radius: 14px; grid-template-rows: auto minmax(0, 1fr) auto !important; }
+  .observation-window .cooling-head { padding: 9px 12px !important; }
+  .observation-window .cooling-head h2 { font-size: 25px !important; }
+  .observation-window .cooling-head p { font-size: 14px !important; }
+  .observation-window .cooling-head .status { display: none; }
+  .close-btn { min-height: 40px; font-size: 16px !important; }
+  .geology-layout { grid-template-columns: minmax(0, 39%) minmax(0, 1fr); gap: 10px; }
+  .geology-details.observation-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: minmax(0, 1fr); gap: 10px; }
+  .geology-details.observation-grid.single-observation { grid-template-columns: minmax(0, 1fr); }
+  .geology-details .observation-card-head { padding: 9px; }
+  .geology-details .observation-card-head h3 { font-size: 24px; }
+  .geology-details .location-caption { display: block; font-size: 13px; }
+  .geology-details .observation-card-head > .place-number { width: 30px; height: 30px; font-size: 16px; }
+  .geology-details .sample-label { font-size: 13px; }
+  .geology-details .growth-state { font-size: 16px; }
+  .geology-details .observation-card-foot { min-height: 44px; padding: 7px 9px; flex-wrap: wrap; }
+  .sample-photo { font-size: 14px; min-height: 34px; padding: 5px 8px; }
+  .geology-map-head { padding: 8px 10px; }
+  .geology-composition-title { font-size: 15px; }
+  .geology-composition-title > span { font-size: 13px; }
+  .geology-map .composition-numbers > span { font-size: 14px; }
+  .geology-map .composition-numbers strong { font-size: 36px; }
+  .geology-map .composition-band { height: 12px; }
+  .geology-site.deep, .geology-origin { width: min(22cqw, 30cqh, 140px); }
+  .geology-site.surface { width: min(22cqw, 30cqh, 140px); }
+  .geology-site-label { min-width: 137px; padding: 4px 6px; top: calc(100% + 4px); }
+  .geology-site-label strong { font-size: 16px; }
+  .geology-site-state { font-size: 13px; }
+  .geology-layer { font-size: 14px; }
+  .geology-volcano-label { font-size: 14px; }
+  .observation-window .mode-progress { padding: 8px 12px !important; gap: 6px; }
+  .playback-controls { grid-template-columns: 108px 96px auto minmax(60px, 1fr) 48px auto; gap: 8px; }
+  .playback-controls button { min-height: 40px; font-size: 16px; }
+  .playback-controls label, .playback-controls output { font-size: 14px; }
+  .observation-window .bar-row { grid-template-columns: 94px minmax(0, 1fr) 48px !important; font-size: 14px !important; }
+  .observation-notes p { font-size: 14px !important; line-height: 1.3; }
+  .observation-notes small { font-size: 11px; }
+  .history-modal { padding: 6px; }
+  .history-modal-card { width: calc(100vw - 12px); height: calc(100dvh - 12px); border-radius: 14px; }
+  .history-modal .cooling-head { padding: 9px 12px !important; }
+  .history-modal .cooling-head h2 { font-size: 25px !important; }
+  .history-modal .cooling-head p { font-size: 15px !important; max-width: none; }
+  .history-compare-grid { padding: 9px; gap: 10px; grid-auto-rows: minmax(0, 1fr); }
+  .history-place-heading .place-title { font-size: 22px; }
+  .history-place-heading > .location-scene { width: 110px; height: 65px; }
+  .history-place-heading .record-id { font-size: 13px; }
+  .history-compare-card-head h3 { font-size: 28px; }
+  .history-compare-card-head .composition-numbers > span { font-size: 16px; }
+  .history-compare-card-head .composition-numbers strong { font-size: 36px; }
+  .history-model .observation-rock { width: min(94cqw, 150cqh, 600px) !important; }
+  .history-compare-card-foot > span { font-size: 16px; }
+  .history-model-note { font-size: 12px; padding: 6px 10px; }
+}
+@media (min-width: 901px) and (max-height: 600px) {
+  .app { padding: 4px 0; gap: 6px; }
+  .left .beaker-card { min-height: 71px; padding: 4px; }
+  .left .beaker { height: 36px; width: 44px; }
+  .left .liquid { height: 25px; }
+  .left .location { min-height: 70px; }
+  .left .location-scene { height: 25px; }
+  .geology-details .observation-card-head h3 { font-size: 22px; }
+  .observation-notes small { display: none; }
+}
+@media (max-width: 900px) {
+  .history-head { flex-wrap: wrap; gap: 6px; }
+  .history-head .history-actions { margin-left: auto; }
+  .history-head button { font-size: 13px; padding: 5px 8px; }
+  .history-place-tabs button { font-size: 14px; padding: 6px 9px; }
+}

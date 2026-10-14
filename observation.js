@@ -48,6 +48,12 @@
     const timeText = document.getElementById('playbackPosition');
     const nextBtn = document.getElementById('nextExperiment');
     const historyList = document.getElementById('historyList');
+    const historyDrawer = document.getElementById('historyDrawer');
+    const toggleHistoryBtn = document.getElementById('toggleHistoryBtn');
+    const historyPrev = document.getElementById('historyPrev');
+    const historyNext = document.getElementById('historyNext');
+    const historyPageLabel = document.getElementById('historyPage');
+    const historyPlaceTabs = document.getElementById('historyPlaceTabs');
     const historyCount = document.getElementById('historyCount');
     const compareHistoryBtn = document.getElementById('compareHistoryBtn');
     const historyModal = document.getElementById('historyModal');
@@ -60,6 +66,8 @@
     const history = core.createHistory(12, stored);
     let selectedRecords = history.list().slice(-2).map(record => record.id);
     let number = Math.max(0, ...history.list().map(record => record.number));
+    let historyPage = 0;
+    let historyPageCount = 1;
     let run = null;
     let timeline = null;
     let views = [];
@@ -273,6 +281,7 @@
         if (history.add(run)) {
           number = Math.max(number, run.number);
           selectedRecords = history.list().slice(-2).map(record => record.id);
+          historyPage = 0;
           try { localStorage.setItem(storageKey, JSON.stringify(history.list())); } catch (_) { /* Keep this session's records. */ }
           renderHistory();
         }
@@ -349,12 +358,20 @@
       selectedRecords = selectedRecords.filter(id => records.some(record => record.id === id));
       compareHistoryBtn.disabled = selectedRecords.length === 0;
       compareHistoryBtn.textContent = selectedRecords.length ? `선택한 기록 비교 (${selectedRecords.length})` : '기록 비교';
+      const pageSize = Math.max(1, Math.min(4, Math.floor((innerWidth - 44) / 280)));
+      historyPageCount = Math.max(1, Math.ceil(records.length / pageSize));
+      historyPage = Math.min(historyPage, historyPageCount - 1);
+      historyList.style.setProperty('--history-cols', Math.min(pageSize, records.length) || 1);
+      historyPrev.disabled = historyPage === 0;
+      historyNext.disabled = historyPage === historyPageCount - 1;
+      historyPageLabel.textContent = `${historyPage + 1} / ${historyPageCount}`;
+      historyPageLabel.parentElement.hidden = historyPageCount === 1;
       historyList.replaceChildren();
       if (!records.length) {
         historyList.innerHTML = '<p class="history-empty">냉각을 마친 실험이 여기에 남습니다. 성분과 장소를 바꿔 여러 결과를 비교해 보세요.</p>';
         return;
       }
-      for (const record of records.slice().reverse()) {
+      for (const record of records.slice().reverse().slice(historyPage * pageSize, (historyPage + 1) * pageSize)) {
         const experiment = hydrate(record);
         const card = document.createElement('article');
         card.className = 'history-card';
@@ -377,16 +394,30 @@
       }
     }
 
+    function setHistoryExpanded(expanded) {
+      historyDrawer.hidden = !expanded;
+      toggleHistoryBtn.setAttribute('aria-expanded', String(expanded));
+      toggleHistoryBtn.textContent = expanded ? '기록 접기' : '기록 펼치기';
+    }
+    toggleHistoryBtn.addEventListener('click', () => setHistoryExpanded(historyDrawer.hidden));
+    historyPrev.addEventListener('click', () => { if (historyPage > 0) { historyPage--; renderHistory(); } });
+    historyNext.addEventListener('click', () => { if (historyPage + 1 < historyPageCount) { historyPage++; renderHistory(); } });
+    window.addEventListener('resize', renderHistory);
+
     function openHistory() {
       const records = history.list().filter(record => selectedRecords.includes(record.id));
       if (!records.length) return;
       historyTrigger = document.activeElement;
+      setHistoryExpanded(false);
       historyGrid.replaceChildren();
+      historyPlaceTabs.replaceChildren();
+      historyPlaceTabs.hidden = true;
       historyGrid.classList.toggle('one-record', records.length === 1);
       historySubtitle.textContent = records.length === 1 ? '선택한 실험의 결과를 관찰합니다.' : records[0].bright === records[1].bright
         ? '두 실험의 성분 비율이 같습니다. 생성 장소와 결정 크기를 비교해 보세요.'
         : '성분 비율이 다른 두 실험입니다. 같은 장소에서 생성된 암석끼리 비교해 보세요.';
-      for (const { record, place, available } of core.comparisonEntries(records)) {
+      const entries = core.comparisonEntries(records);
+      for (const { record, place, available } of entries) {
           const experiment = hydrate(record);
           const card = document.createElement('article');
           card.className = 'history-compare-card' + (available ? '' : ' missing-result');
@@ -404,6 +435,24 @@
             card.appendChild(foot);
           } else card.querySelector('.history-model').textContent = '이 장소에서 냉각한 결과가 없습니다.';
           historyGrid.appendChild(card);
+      }
+      if (entries.length > 2) {
+        const places = [...new Set(entries.map(entry => entry.place))];
+        const showPlace = place => {
+          historyGrid.querySelectorAll('.history-compare-card').forEach(card => { card.hidden = card.dataset.place !== place; });
+          historyPlaceTabs.querySelectorAll('button').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.place === place)));
+        };
+        for (const place of places) {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.dataset.place = place;
+          button.innerHTML = `<span class="place-number">${place === 'surface' ? '1' : '2'}</span> ${locationName(place)}`;
+          button.setAttribute('aria-pressed', 'false');
+          button.addEventListener('click', () => showPlace(place));
+          historyPlaceTabs.appendChild(button);
+        }
+        historyPlaceTabs.hidden = false;
+        showPlace(places[0]);
       }
       hideTip();
       historyModal.classList.add('show');

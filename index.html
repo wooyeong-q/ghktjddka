@@ -1689,9 +1689,9 @@
   </style>
   <link rel="stylesheet" href="./responsive-safe.css?v=20260716-1" />
   <link rel="stylesheet" href="./popup-mobile-fix.css?v=20260716-2" />
-  <link rel="stylesheet" href="./observation.css?v=20261014-6" />
-  <script src="./observation-core.js?v=20261014-6"></script>
-  <script src="./observation.js?v=20261014-6"></script>
+  <link rel="stylesheet" href="./observation.css?v=20261014-7" />
+  <script src="./observation-core.js?v=20261014-7"></script>
+  <script src="./observation.js?v=20261014-7"></script>
 </head>
 <body>
   <main class="app">
@@ -1801,8 +1801,11 @@
       </section>
     </section>
     <section class="history-panel" aria-labelledby="historyTitle">
-      <div class="history-head"><div><h2 id="historyTitle">실험 기록</h2><span id="historyCount">0회</span></div><button type="button" id="compareHistoryBtn" disabled>기록 비교</button></div>
-      <div class="history-list" id="historyList"></div>
+      <div class="history-head"><div><h2 id="historyTitle">실험 기록</h2><span id="historyCount">0회</span></div><div class="history-actions"><button type="button" id="toggleHistoryBtn" aria-expanded="false" aria-controls="historyDrawer">기록 펼치기</button><button type="button" id="compareHistoryBtn" disabled>기록 비교</button></div></div>
+      <div class="history-drawer" id="historyDrawer" hidden>
+        <div class="history-list" id="historyList"></div>
+        <div class="history-pages"><button type="button" id="historyPrev" aria-label="이전 실험 기록 페이지">이전</button><span id="historyPage" aria-live="polite"></span><button type="button" id="historyNext" aria-label="다음 실험 기록 페이지">다음</button></div>
+      </div>
     </section>
   </main>
 
@@ -1853,6 +1856,7 @@
   <div class="history-modal" id="historyModal" role="dialog" aria-modal="true" aria-labelledby="historyCompareTitle" aria-hidden="true">
     <div class="history-modal-card">
       <div class="cooling-head"><div><h2 id="historyCompareTitle">실험 기록 비교</h2><p id="historyCompareSubtitle"></p></div><button class="close-btn" type="button" id="closeHistoryBtn">닫기</button></div>
+      <div class="history-place-tabs" id="historyPlaceTabs" role="group" aria-label="비교할 생성 장소" hidden></div>
       <div class="history-compare-grid" id="historyCompareGrid"></div>
       <p class="history-model-note">같은 크기의 관찰 모형입니다. 실제 암석의 배율을 나타내지 않습니다. 암석 사진은 각 결과에서 열어볼 수 있습니다.</p>
     </div>
