@@ -610,6 +610,7 @@ body { background: #0c1621; }
   .geology-site-label strong { font-size: 16px; }
   .geology-site-state { font-size: 13px; }
   .geology-site.deep .geology-site-label, .geology-origin .geology-site-label { left: calc(100% + 8px); top: 50%; transform: translateY(-50%); }
+  .geology-site.surface .geology-site-label { top: auto; bottom: calc(100% + 4px); }
   .geology-layer { font-size: 14px; }
   .geology-volcano-label { font-size: 14px; }
   .observation-window .mode-progress { padding: 8px 12px !important; gap: 6px; }
@@ -652,6 +653,7 @@ body { background: #0c1621; }
   .history-place-tabs button { font-size: 14px; padding: 6px 9px; }
 }
 @media (min-width: 901px) and (max-height: 650px) {
+  .geology-site.surface { top: 47%; }
   .history-modal .cooling-head { padding: 6px 12px !important; }
   .history-place-tabs { padding: 5px 12px; }
   .history-place-tabs button { min-height: 38px; padding: 5px 12px; font-size: 16px; }

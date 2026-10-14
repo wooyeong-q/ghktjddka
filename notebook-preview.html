@@ -8,7 +8,7 @@ header{display:flex;align-items:center;gap:10px;height:48px;padding:0 12px}
 button{background:#244858;border:1px solid #6b9cad;color:#f1f7f8;border-radius:6px;padding:6px 12px;font:inherit}
 iframe{display:block;margin:8px auto;border:1px solid #587c8f;width:1280px;height:620px}
 </style>
-<header><strong>노트북 화면</strong><button data-width="1280" data-height="620">1280 × 620</button><button data-width="1024" data-height="580">1024 × 580</button><button data-width="1280" data-height="720">1280 × 720</button></header>
+<header><strong>노트북 화면</strong><button data-width="1280" data-height="620">1280 × 620</button><button data-width="1024" data-height="580">1024 × 580</button><button data-width="1280" data-height="720">1280 × 720</button><button data-src="./index.html">미리보기</button><button data-src="https://ghktjddka.vercel.app/">운영 화면</button></header>
 <iframe src="./index.html" title="화성암 실험실"></iframe>
-<script>document.querySelectorAll('button').forEach(button=>button.addEventListener('click',()=>{const frame=document.querySelector('iframe');frame.style.width=button.dataset.width+'px';frame.style.height=button.dataset.height+'px';}));</script>
+<script>document.querySelectorAll('button').forEach(button=>button.addEventListener('click',()=>{const frame=document.querySelector('iframe');if(button.dataset.src){frame.src=button.dataset.src;return;}frame.style.width=button.dataset.width+'px';frame.style.height=button.dataset.height+'px';}));</script>
 </html>
