@@ -340,6 +340,10 @@ body { background: #0c1621; }
 .stage .cooling-marker.active { opacity: 1; border-color: var(--place-accent); box-shadow: 0 0 0 2px var(--place-tint); }
 .stage .mix-label { left: 50%; bottom: 12px; top: auto; padding: 6px 12px; border-radius: 8px; border-color: #8d9b9f55; background: #162b38; font-size: 12px; }
 .result-panel { background: #10202d; }
+.rock-preview:not(.ready) { background: #1d3443; opacity: 1; }
+.rock-preview:not(.ready)::before { background: none; }
+.rock-preview:not(.ready)::after { content: '냉각 후 암석 관찰'; position: absolute; inset: 0; display: grid; place-items: center; color: #b2c9d3; font-size: 13px; }
+.rock-preview:not(.ready) .rock-photo-hint { display: none; }
 .fact { background: #263c4b; border-color: #476170; color: #d5e5ec; font-weight: 650; }
 .summary-rock[data-place] { border-color: var(--place-border); background: var(--place-tint); }
 .summary-rock[data-place] small:first-child { color: var(--place-accent); }
@@ -415,6 +419,18 @@ body { background: #0c1621; }
   .left { grid-template-rows: auto auto auto; }
   .stage-caption { font-size: 15px; }
   .stage .magma-chamber { width: min(34cqw, 44cqh, 245px); }
+}
+@media (min-width: 901px) and (min-height: 651px) and (max-height: 950px) {
+  .left { padding: 9px; gap: 8px; }
+  .left .box { padding: 9px; }
+  .left .box h2 { margin-bottom: 8px; font-size: 15px; }
+  .left .beaker-card { min-height: 116px; padding: 8px 6px; }
+  .left .beaker { width: 52px; height: 54px; }
+  .left .liquid { height: 38px; }
+  .left .percent-card { margin-top: 8px; gap: 6px; }
+  .left .location { min-height: 109px; }
+  .left .location-scene { height: 48px; }
+  .left .primary, .left .secondary { min-height: 38px; padding: 8px; font-size: 13px; }
 }
 @media (max-width: 700px) {
   .left .location { min-height: 117px; }
