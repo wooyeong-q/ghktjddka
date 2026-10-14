@@ -3,7 +3,7 @@
   root.IgneousObservation = { createLab };
 
   function createLab(context) {
-      const { els, rockTable, getConditions, resetResultText, onComplete, openPhotoModal, hideTip, showTip } = context;
+    const { els, rockTable, getConditions, resetResultText, onComplete, openPhotoModal, hideTip, showTip } = context;
     const core = root.IgneousObservationCore;
     const windowEl = els.coolingScene.closest('.cooling-window');
     const app = document.querySelector('.app');
@@ -31,6 +31,7 @@
     let run = null;
     let timeline = null;
     let views = [];
+    let geologyFlow = null;
     let raf = 0;
     let lastTime = null;
     let trigger = null;
@@ -41,6 +42,11 @@
     const locationName = place => place === 'deep' ? '지하 깊은 곳' : '지표 부근 · 분출 후';
     const categoryFor = bright => bright >= 65 ? 'bright' : bright <= 35 ? 'dark' : 'middle';
     const seedNow = () => Math.floor(Math.random() * 4294967296);
+    function compositionMarkup(experiment) {
+      return `<div class="composition-display" aria-label="밝은 성분 ${experiment.bright}%, 어두운 성분 ${experiment.dark}%">
+        <div class="composition-numbers"><span class="composition-bright">밝은 성분 <strong>${experiment.bright}<small>%</small></strong></span><span class="composition-dark">어두운 성분 <strong>${experiment.dark}<small>%</small></strong></span></div>
+        <div class="composition-band" aria-hidden="true"><span style="width:${experiment.bright}%"></span><span style="width:${experiment.dark}%"></span></div></div>`;
+    }
     function hydrate(record) {
       const category = categoryFor(record.bright);
       return Object.freeze({ ...record, dark: 100 - record.bright,
@@ -103,24 +109,42 @@
 
     function setupScene(experiment) {
       els.coolingScene.replaceChildren();
+      const layout = document.createElement('div');
+      layout.className = 'geology-layout';
+      const map = document.createElement('section');
+      map.className = 'geology-map';
+      map.setAttribute('aria-label', '화산과 지하 깊은 곳의 단면');
+      map.innerHTML = `<div class="geology-map-head"><div class="geology-composition-title"><strong>마그마 성분</strong><span>${experiment.mode === 'compare' ? '두 장소에 같은 성분' : '이번 실험의 성분'}</span></div>${compositionMarkup(experiment)}</div>
+        <div class="geology-canvas"><div class="geology-ground"></div><div class="geology-depth"><span>깊어짐</span></div>
+          <span class="geology-layer surface-layer">지표</span><span class="geology-layer deep-layer">지하 깊은 곳</span>
+          <div class="geology-volcano"><div class="smoke"></div><div class="cone-back"></div><div class="cone-front"></div><div class="crater"></div><span class="geology-volcano-label">화산</span></div>
+          <div class="geology-conduit"></div>
+          <svg class="geology-lava" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M40 16 C46 20 55 28 63 35 S72 41 79 41" /></svg>
+        </div>`;
+      const canvas = map.querySelector('.geology-canvas');
+      geologyFlow = experiment.mode === 'slow' ? null : map.querySelector('.geology-lava path');
+      map.querySelector('.geology-lava').toggleAttribute('hidden', experiment.mode === 'slow');
       const grid = document.createElement('div');
-      grid.className = 'observation-grid' + (experiment.mode !== 'compare' ? ' single-observation' : '');
+      grid.className = 'observation-grid geology-details' + (experiment.mode !== 'compare' ? ' single-observation' : '');
       views = core.placesFor(experiment.mode).map(place => {
         const card = document.createElement('article');
         card.className = 'observation-card';
-        card.innerHTML = `<div class="observation-card-head"><div><span class="location-caption">${place === 'deep' ? '지하' : '지표'}</span><h3>${locationName(place)}</h3></div><span class="sample-condition"><span>밝은 ${experiment.bright}%</span><span>어두운 ${experiment.dark}%</span></span></div>
-          <div class="observation-sample-area"><span class="sample-label">결정 관찰 모형</span><div class="growth-lens"><div class="lens-circle"></div><span>표시한 결정</span></div></div>
+        card.innerHTML = `<div class="observation-card-head"><div><span class="location-caption">결정 확대 관찰</span><h3>${locationName(place)}</h3></div></div>
+          <div class="observation-sample-area"><span class="sample-label">같은 크기로 확대한 모형</span></div>
           <div class="observation-card-foot"><strong class="growth-state">냉각 시작</strong><button type="button" class="sample-photo" hidden>실제 암석 사진</button></div>`;
         const view = makeSpecimen(place, experiment);
-        view.mold.id = place + 'Mold';
+        view.mold.id = place + 'DetailMold';
         card.querySelector('.observation-sample-area').prepend(view.mold);
-        const tracked = view.grains.find(item => item.grain.tracked).grain;
-        const lens = document.createElement('span');
-        lens.className = 'lens-grain observed-grain';
-        lens.style.setProperty('--lens-grain-size', String(tracked.size));
-        lens.style.background = colorFor(tracked.color, experiment.bright);
-        card.querySelector('.lens-circle').appendChild(lens);
-        view.lens = lens;
+        const site = document.createElement('div');
+        site.className = 'geology-site ' + place;
+        const siteView = makeSpecimen(place, experiment);
+        siteView.mold.classList.add('geology-rock');
+        siteView.mold.id = place + 'Mold';
+        site.innerHTML = `<div class="geology-site-label"><strong>${place === 'deep' ? '지하 깊은 곳' : '지표 부근'}</strong><span class="geology-site-state">${place === 'deep' ? '마그마' : '분출한 용암'}</span></div>`;
+        site.prepend(siteView.mold);
+        canvas.appendChild(site);
+        view.site = siteView;
+        view.siteCaption = site.querySelector('.geology-site-state');
         view.caption = card.querySelector('.growth-state');
         view.photo = card.querySelector('.sample-photo');
         view.photo.addEventListener('click', () => {
@@ -129,9 +153,11 @@
         });
         grid.appendChild(card);
         paintSpecimen(view, 0);
+        paintSpecimen(siteView, 0);
         return view;
       });
-      els.coolingScene.appendChild(grid);
+      layout.append(map, grid);
+      els.coolingScene.appendChild(layout);
     }
 
     function stopFrame() { cancelAnimationFrame(raf); raf = 0; lastTime = null; }
@@ -163,11 +189,18 @@
       for (const view of views) {
         const progress = core.progressAt(view.place, state.elapsed);
         paintSpecimen(view, progress);
+        paintSpecimen(view.site, progress);
         const done = progress === 1;
         const rock = run.rocks[view.place];
         view.caption.textContent = done ? `${rock.name} · ${rock.texture}` : progress < .03 ? '녹은 상태' : view.place === 'deep' ? '결정이 자라는 중' : '빠르게 굳는 중';
         view.photo.hidden = !done;
-        view.mold.setAttribute('aria-label', `${locationName(view.place)}: ${view.caption.textContent}`);
+        view.mold.setAttribute('aria-label', `${locationName(view.place)} 결정 확대: ${view.caption.textContent}`);
+        view.site.mold.setAttribute('aria-label', `${locationName(view.place)}: ${view.caption.textContent}`);
+        view.siteCaption.textContent = done ? rock.name : view.place === 'deep' ? '마그마가 식는 중' : '분출한 용암이 식는 중';
+      }
+      if (geologyFlow) {
+        geologyFlow.style.strokeDashoffset = String(1 - Math.min(1, state.elapsed / 600));
+        geologyFlow.style.opacity = String(1 - core.progressAt('surface', state.elapsed) * .45);
       }
       const firstPlace = run.mode === 'fast' ? 'surface' : 'deep';
       const firstProgress = core.progressAt(firstPlace, state.elapsed);
@@ -180,13 +213,13 @@
       predictionNote.hidden = run.mode !== 'compare' || !run.prediction;
       predictionNote.textContent = run.prediction ? `내 예상: ${labels[run.prediction]}${state.complete ? ' · 관찰: 지하 쪽 결정이 더 큼' : ''}` : '';
       if (run.mode === 'compare' && surfaceProgress === 1 && firstProgress < 1) {
-        els.coolingNote.textContent = '지표 쪽은 냉각이 끝났습니다. 지하 쪽에서 표시한 결정이 계속 변하는지 관찰하세요.';
+        els.coolingNote.textContent = '지표 쪽은 냉각이 끝났습니다. 지하 마그마와 오른쪽 확대 모형에서 결정이 계속 자라는지 관찰하세요.';
       } else if (state.complete) {
         els.coolingNote.textContent = run.mode === 'compare'
           ? '같은 성분에서 냉각 조건에 따라 결정 크기가 달라졌습니다. 재생 위치를 옮겨 성장 과정을 다시 확인하세요.'
           : '재생 위치를 옮기거나 다시 재생해 결정이 생기고 자라는 과정을 살펴보세요.';
       } else {
-        els.coolingNote.textContent = '표시한 결정과 옆의 확대 창을 함께 살펴보세요. 원하는 순간에 멈추거나 재생 위치를 옮길 수 있습니다.';
+        els.coolingNote.textContent = '화산과 지하 단면에서 생성 장소를 확인하고, 확대 모형에서 결정을 관찰하세요. 원하는 순간에 멈출 수 있습니다.';
       }
       if (state.complete && !finishing) finish();
     }
@@ -325,7 +358,7 @@
           const card = document.createElement('article');
           card.className = 'history-compare-card' + (available ? '' : ' missing-result');
           const rock = experiment.rocks[place];
-          card.innerHTML = `<div class="history-compare-card-head"><small>실험 ${record.number} · 밝은 ${experiment.bright}% · 어두운 ${experiment.dark}%</small><h3>${locationName(place)}${available ? ' · ' + rock.name : ''}</h3></div><div class="history-model"></div>`;
+          card.innerHTML = `<div class="history-compare-card-head"><small>실험 ${record.number}</small><h3>${locationName(place)}${available ? ' · ' + rock.name : ''}</h3>${compositionMarkup(experiment)}</div><div class="history-model"></div>`;
           if (available) {
             const view = makeSpecimen(place, experiment, true);
             view.mold.setAttribute('aria-label', `${locationName(place)}: ${rock.name}, ${rock.texture}`);
