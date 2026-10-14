@@ -612,6 +612,7 @@ body { background: #0c1621; }
   .geology-site.deep .geology-site-label, .geology-origin .geology-site-label { left: calc(100% + 8px); top: 50%; transform: translateY(-50%); }
   .geology-site.surface .geology-site-label { top: auto; bottom: calc(100% + 4px); }
   .geology-layer { font-size: 14px; }
+  .geology-depth span { white-space: nowrap; }
   .geology-volcano-label { font-size: 14px; }
   .observation-window .mode-progress { padding: 8px 12px !important; gap: 6px; }
   .playback-controls { grid-template-columns: 108px 96px auto minmax(60px, 1fr) 48px auto; gap: 8px; }
