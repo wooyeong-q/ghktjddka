@@ -106,10 +106,10 @@ button:focus-visible, input:focus-visible, [role="button"]:focus-visible { outli
   .left .beaker-label { margin-bottom: 4px; }
   .left .location { min-height: 78px; padding: 8px; }
   .left .primary, .left .secondary { min-height: 39px; padding: 8px; font-size: 13px; }
-  .lab { display: grid; grid-template-rows: minmax(250px, 1fr) auto; min-height: 0; }
+  .lab { display: grid; grid-template-rows: minmax(240px, 1fr) 210px; min-height: 0; }
   .lab .stage { min-height: 0; height: auto; }
   .lab .volcano { transform: translateX(-50%) scale(.72); transform-origin: bottom center; }
-  .lab .result-panel { padding: 9px; }
+  .lab .result-panel { height: 210px; padding: 9px; overflow: auto; }
   .lab .rock-preview { height: 110px; }
   .lab .result-text h2 { font-size: 18px; }
   .lab .result-text p, .lab .fact { font-size: 10px; }
