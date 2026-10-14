@@ -320,11 +320,8 @@
       historySubtitle.textContent = records.length === 1 ? '선택한 실험의 결과를 관찰합니다.' : records[0].bright === records[1].bright
         ? '두 실험의 성분 비율이 같습니다. 생성 장소와 결정 크기를 비교해 보세요.'
         : '성분 비율이 다른 두 실험입니다. 같은 장소에서 생성된 암석끼리 비교해 보세요.';
-      for (const place of ['deep', 'surface']) {
-        if (!records.some(record => core.placesFor(record.mode).includes(place))) continue;
-        for (const record of records) {
+      for (const { record, place, available } of core.comparisonEntries(records)) {
           const experiment = hydrate(record);
-          const available = core.placesFor(record.mode).includes(place);
           const card = document.createElement('article');
           card.className = 'history-compare-card' + (available ? '' : ' missing-result');
           const rock = experiment.rocks[place];
@@ -340,7 +337,6 @@
             card.appendChild(foot);
           } else card.querySelector('.history-model').textContent = '이 장소에서 냉각한 결과가 없습니다.';
           historyGrid.appendChild(card);
-        }
       }
       hideTip();
       historyModal.classList.add('show');

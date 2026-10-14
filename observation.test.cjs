@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { DURATIONS, createTimeline, progressAt, grainsFor, growthAt, createHistory } = require('./observation-core.js');
+const { DURATIONS, createTimeline, progressAt, grainsFor, growthAt, createHistory, comparisonEntries } = require('./observation-core.js');
 
 test('pause freezes all cooling progress, seeking and replay return to the same time', () => {
   const timeline = createTimeline('compare');
@@ -60,4 +60,13 @@ test('restored records reject corrupt data and unsafe text; no prediction is req
   assert.equal(history.add({ ...good, id: 'run-2', mode: 'invalid' }), false);
   assert.throws(() => createTimeline('invalid'), RangeError);
   assert.throws(() => createTimeline('slow').seek(NaN), RangeError);
+});
+
+test('two single experiments compare actual results side by side; paired experiments align by location', () => {
+  const singles = comparisonEntries([{ mode: 'fast', bright: 50 }, { mode: 'slow', bright: 50 }]);
+  assert.equal(singles.length, 2);
+  assert.deepEqual(singles.map(entry => entry.place), ['surface', 'deep']);
+  assert.ok(singles.every(entry => entry.available));
+  const pairs = comparisonEntries([{ mode: 'compare', bright: 50 }, { mode: 'compare', bright: 66 }]);
+  assert.deepEqual(pairs.map(entry => [entry.place, entry.record.bright]), [['deep',50],['deep',66],['surface',50],['surface',66]]);
 });

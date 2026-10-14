@@ -10,6 +10,18 @@
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
   const placesFor = mode => mode === 'compare' ? ['deep', 'surface'] : [mode === 'slow' ? 'deep' : 'surface'];
 
+  function comparisonEntries(records) {
+    if (records.every(record => record.mode !== 'compare')) {
+      return records.map(record => ({ record, place: placesFor(record.mode)[0], available: true }));
+    }
+    const entries = [];
+    for (const place of ['deep', 'surface']) {
+      if (!records.some(record => placesFor(record.mode).includes(place))) continue;
+      for (const record of records) entries.push({ record, place, available: placesFor(record.mode).includes(place) });
+    }
+    return entries;
+  }
+
   function createTimeline(mode) {
     if (!MODES.includes(mode)) throw new RangeError('Invalid cooling mode');
     const duration = mode === 'fast' ? DURATIONS.surface : DURATIONS.deep;
@@ -101,5 +113,5 @@
       }
     };
   }
-  return { DURATIONS, createTimeline, progressAt, grainsFor, growthAt, createHistory, placesFor };
+  return { DURATIONS, createTimeline, progressAt, grainsFor, growthAt, createHistory, placesFor, comparisonEntries };
 });
