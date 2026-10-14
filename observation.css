@@ -1,6 +1,6 @@
 [hidden] { display: none !important; }
 button:focus-visible, input:focus-visible, [role="button"]:focus-visible { outline: 3px solid #7dd3fc; outline-offset: 3px; }
-.app { width: min(1280px, calc(100vw - 20px)); grid-template-rows: auto minmax(0, 1fr) auto; }
+.app { grid-template-rows: auto minmax(0, 1fr) auto; }
 .history-panel { min-width: 0; border: 1px solid #334155; border-radius: 18px; background: #0c1828; padding: 9px 12px; }
 .history-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 7px; }
 .history-head > div { display: flex; align-items: baseline; gap: 12px; }
@@ -277,7 +277,7 @@ button:focus-visible, input:focus-visible, [role="button"]:focus-visible { outli
 /* Shared visual system: location colors and diagram positions stay consistent in every view. */
 :root { --bg0: #0c1621; --bg1: #111f2c; --panel: #142230; --line: #3a4b5b; --text: #edf3f5; --muted: #a7bbc8; --shadow: 0 14px 36px #020b1433; }
 body { background: #0c1621; }
-.app { width: min(1380px, calc(100vw - 24px)); gap: 12px; }
+.app { width: calc(100% - 12px); gap: 12px; }
 .app > header { align-items: center; }
 .app > header h1 { letter-spacing: -.045em; }
 .app > header .status { border-radius: 12px; background: #142330; }
@@ -578,7 +578,7 @@ body { background: #0c1621; }
   .stage .cooling-marker.deep { left: 71%; top: 67%; }
   .stage .cooling-marker.surface { top: calc(42% + 8px); }
   .stage .mix-label { font-size: 15px; bottom: 7px; padding: 5px 9px; }
-  .stage .magma-chamber { width: min(32cqw, 52cqh, 300px); }
+  .stage .magma-chamber { width: min(32cqw, 52cqh); }
   .stage .magma-chamber::after { font-size: 14px; }
   .cooling-overlay { padding: 6px; }
   .cooling-window.observation-window { width: calc(100vw - 12px); height: calc(100dvh - 12px); max-height: none; border-radius: 14px; grid-template-rows: auto minmax(0, 1fr) auto !important; }
@@ -595,6 +595,7 @@ body { background: #0c1621; }
   .geology-details .location-caption { display: block; font-size: 13px; }
   .geology-details .observation-card-head > .place-number { width: 30px; height: 30px; font-size: 16px; }
   .geology-details .sample-label { font-size: 13px; }
+  .geology-details .observation-rock { width: min(94cqw, 150cqh) !important; }
   .geology-details .growth-state { font-size: 16px; }
   .geology-details .observation-card-foot { min-height: 44px; padding: 7px 9px; flex-wrap: wrap; }
   .sample-photo { font-size: 14px; min-height: 34px; padding: 5px 8px; }
@@ -633,7 +634,7 @@ body { background: #0c1621; }
   .history-compare-card-head h3 { font-size: 28px; }
   .history-compare-card-head .composition-numbers > span { font-size: 16px; }
   .history-compare-card-head .composition-numbers strong { font-size: 36px; }
-  .history-model .observation-rock { width: min(94cqw, 150cqh, 600px) !important; }
+  .history-model .observation-rock { width: min(94cqw, 150cqh) !important; }
   .history-compare-card-foot > span { font-size: 16px; }
   .history-model-note { font-size: 12px; padding: 6px 10px; }
 }
